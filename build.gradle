@@ -1,0 +1,143 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'maven-publish'
+}
+
+/*
+ * Propriedades
+ */
+group = 'dev.pretti.treasuresapi'
+version = '1.0'
+
+
+/*
+ * Publicação
+ */
+def PUBLISH_GROUP = project.group
+def PUBLISH_ID = project.name.toLowerCase()
+def PUBLISH_VERSION = project.version
+
+/*
+ * Definições
+ */
+def MAIN_CLASS = project.group + "." + project.name
+def REPOSITORY_PATH = "D:/Desenvolvimento/IntelliJ/Minecraft/Libs"
+def FINAL_NAME = "${project.name}"
+
+
+/**
+ * Propriedades do compilador
+ */
+compileJava {
+    options.encoding = 'UTF-8'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+/*
+ * Configurações dos subprojetos
+ */
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    group = project.group
+    version = project.version
+
+    /*
+     * Repositórios
+     */
+    repositories {
+        mavenCentral()
+
+        // Spigot
+        maven {
+            url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        }
+        maven {
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        // Minecraft
+        maven {
+            url 'https://libraries.minecraft.net/'
+        }
+    }
+
+    /*
+     * Dependências
+     */
+    dependencies {
+        testImplementation(platform('org.junit:junit-bom:5.10.0'))
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+
+        // Annotations
+        compileOnly 'org.jetbrains:annotations:24.0.0'
+
+        // Minecraft
+        compileOnly 'com.mojang:authlib:1.5.25'
+    }
+
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+/*
+ * Tarefas
+ */
+task combinedJar(type: Jar) {
+    archiveBaseName.set(FINAL_NAME)
+    archiveClassifier.set('')
+
+    // Adiciona as saídas de todos os subprojetos
+    from {
+        subprojects.collect { it.sourceSets.main.output }
+    }
+
+    // Adiciona as dependências em tempo de execução
+    from {
+        subprojects.collect {
+            it.configurations.runtimeClasspath.collect { file ->
+                file.isDirectory() ? file : zipTree(file)
+            }
+        }
+    }
+
+    manifest {
+        attributes 'Main-Class': MAIN_CLASS // Substitua pela sua classe principal
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+subprojects {
+    if (path.startsWith(':versions:')) {
+        combinedJar.dependsOn tasks.named('build') // Adiciona dependência das tarefas de build dos subprojetos shared
+    }
+}
+
+tasks.named('build') {
+    dependsOn combinedJar
+}
+
+
+/*
+ * Configurações de publicação
+ */
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact tasks.combinedJar
+            groupId = PUBLISH_GROUP
+            artifactId = PUBLISH_ID
+            version = PUBLISH_VERSION
+        }
+    }
+    repositories {
+        maven {
+            url = uri("file://${REPOSITORY_PATH}")
+        }
+    }
+}

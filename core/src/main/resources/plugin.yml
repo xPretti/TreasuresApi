@@ -1,0 +1,4 @@
+name: TreasuresApi
+version: 1.0
+main: dev.pretti.treasuresapi.TreasuresApi
+author: Pretti_
