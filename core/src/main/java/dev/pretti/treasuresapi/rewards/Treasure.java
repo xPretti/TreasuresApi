@@ -2,6 +2,7 @@ package dev.pretti.treasuresapi.rewards;
 
 import dev.pretti.treasuresapi.collections.IteratorList;
 import dev.pretti.treasuresapi.conditions.Conditions;
+import org.jetbrains.annotations.NotNull;
 
 public class Treasure
 {
@@ -58,6 +59,7 @@ public class Treasure
     this.permission = permission;
   }
 
+  @NotNull
   public IteratorList<RewardsGroup> getRewardsGroup()
   {
     return rewardsGroup;
@@ -83,6 +85,7 @@ public class Treasure
     this.random = random;
   }
 
+  @NotNull
   public Conditions getConditions()
   {
     return conditions;

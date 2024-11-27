@@ -1,46 +1,39 @@
 package dev.pretti.treasuresapi.conditions;
 
-import dev.pretti.treasuresapi.enums.EnumConditionType;
-import dev.pretti.treasuresapi.conditions.types.base.Condition;
-import org.jetbrains.annotations.Nullable;
+import dev.pretti.treasuresapi.conditions.interfaces.ICondition;
+import dev.pretti.treasuresapi.processors.context.TreasureContext;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Conditions
 {
-  private final HashMap<EnumConditionType, Condition> conditions = new HashMap<>();
+  private final List<ICondition> conditions = new ArrayList<>();
 
   /**
-   * Métodos de retornos
+   * Método de atualização
    */
-  @SuppressWarnings("unchecked")
-  @Nullable
-  public <T extends Condition> T getCondition(EnumConditionType type)
+  public boolean evaluate(TreasureContext context)
   {
-    return (T) conditions.get(type);
-  }
-
-  public boolean existCondition(EnumConditionType type)
-  {
-    return conditions.containsKey(type);
-  }
-
-  public HashMap<EnumConditionType, Condition> getConditions()
-  {
-    return conditions;
+    for(ICondition condition : conditions)
+      {
+        if(!condition.evaluate(context))
+          {
+            return false;
+          }
+      }
+    return true;
   }
 
   /**
    * Métodos de definições
    */
-
-  public boolean addCondition(Condition condition)
+  public boolean addCondition(ICondition condition)
   {
-    if(condition != null && !existCondition(condition.getType()))
+    if(condition == null)
       {
-        this.conditions.put(condition.getType(), condition);
-        return true;
+        return false;
       }
-    return false;
+    return conditions.add(condition);
   }
 }

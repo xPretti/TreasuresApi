@@ -1,5 +1,6 @@
 package dev.pretti.treasuresapi.loaders;
 
+import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.datatypes.commands.CommandType;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
@@ -12,6 +13,7 @@ import dev.pretti.treasuresapi.rewards.types.XpReward;
 import dev.pretti.treasuresapi.utils.ConverterUtils;
 import dev.pretti.treasuresapi.utils.FileUtils;
 import dev.pretti.treasuresapi.utils.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -46,15 +48,31 @@ public class TreasuresLoader
   private final String _commandsSection      = "commands";
   private final String _flagsSection         = "flags";
 
-  private final ConditionsLoader _conditionsLoader = new ConditionsLoader();
+  private final IConditionsBuilder conditionsBuilder;
+
+  private int errors = 0;
+
+  /**
+   * Contrutor da classe
+   */
+  public TreasuresLoader(IConditionsBuilder conditionsBuilder)
+  {
+    this.conditionsBuilder = conditionsBuilder;
+  }
 
   /**
    * Método de carregamento dos tesouros
    */
   @Nullable
-  public List<Treasure> loader(String folder)
+  public List<Treasure> loader(String folder) throws IllegalArgumentException
   {
-    return (_convert(folder));
+    errors = 0;
+    List<Treasure> treasures = _convert(folder);
+    if(errors > 0)
+      {
+        throw new IllegalArgumentException("Error loading treasures.");
+      }
+    return (treasures);
   }
 
   /**
@@ -109,7 +127,10 @@ public class TreasuresLoader
       {
         String   treasureName = currentSection.getName();
         Treasure treasure     = new Treasure();
-        _conditionsLoader.loader(currentSection, treasure.getConditions());
+
+        ConditionsLoader conditionsLoader = new ConditionsLoader(conditionsBuilder, treasure.getConditions());
+        errors += conditionsLoader.loader(currentSection) ? 0 : 1;
+
         treasure.setName(treasureName);
         if(currentSection.contains(_chanceSection))
           {

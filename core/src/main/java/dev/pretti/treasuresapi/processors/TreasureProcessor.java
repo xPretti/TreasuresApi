@@ -1,15 +1,13 @@
 package dev.pretti.treasuresapi.processors;
 
 import dev.pretti.treasuresapi.conditions.Conditions;
-import dev.pretti.treasuresapi.conditions.types.base.Condition;
 import dev.pretti.treasuresapi.datatypes.ItemType;
 import dev.pretti.treasuresapi.datatypes.commands.CommandType;
+import dev.pretti.treasuresapi.processors.context.TreasureContext;
 import dev.pretti.treasuresapi.processors.interfaces.ITreasureProcessor;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.ICommandOutput;
-import dev.pretti.treasuresapi.processors.interfaces.outputs.IConditionOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IItemOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IXpOutput;
-import dev.pretti.treasuresapi.processors.context.TreasureContext;
 import dev.pretti.treasuresapi.rewards.Rewards;
 import dev.pretti.treasuresapi.rewards.RewardsGroup;
 import dev.pretti.treasuresapi.rewards.Treasure;
@@ -28,11 +26,10 @@ import java.util.List;
 
 public class TreasureProcessor implements ITreasureProcessor
 {
-  private final Treasure         treasure;
-  private final IXpOutput        xpOutput;
-  private final ICommandOutput   commandOutput;
-  private final IItemOutput      itemOutput;
-  private final IConditionOutput conditionOutput;
+  private final Treasure       treasure;
+  private final IXpOutput      xpOutput;
+  private final ICommandOutput commandOutput;
+  private final IItemOutput    itemOutput;
 
   /**
    * Construtor da classe
@@ -40,14 +37,12 @@ public class TreasureProcessor implements ITreasureProcessor
   public TreasureProcessor(@NotNull Treasure treasure,
                            @Nullable IXpOutput xpOutput,
                            @Nullable ICommandOutput commandOutput,
-                           @Nullable IItemOutput itemOutput,
-                           @Nullable IConditionOutput conditionOutput)
+                           @Nullable IItemOutput itemOutput)
   {
-    this.treasure        = treasure;
-    this.xpOutput        = xpOutput;
-    this.commandOutput   = commandOutput;
-    this.itemOutput      = itemOutput;
-    this.conditionOutput = conditionOutput;
+    this.treasure      = treasure;
+    this.xpOutput      = xpOutput;
+    this.commandOutput = commandOutput;
+    this.itemOutput    = itemOutput;
   }
 
   /**
@@ -72,18 +67,9 @@ public class TreasureProcessor implements ITreasureProcessor
 
   protected boolean hasCondition(TreasureContext process, Conditions conditions)
   {
-    if(conditions != null && conditionOutput != null)
+    if(conditions != null)
       {
-        if(!conditions.getConditions().isEmpty())
-          {
-            for(Condition condition : conditions.getConditions().values())
-              {
-                if(!conditionOutput.process(process, condition))
-                  {
-                    return false;
-                  }
-              }
-          }
+        return conditions.evaluate(process);
       }
     return true;
   }

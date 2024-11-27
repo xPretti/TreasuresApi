@@ -1,5 +1,6 @@
 package dev.pretti.treasuresapi;
 
+import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.loaders.TreasuresLoader;
 import dev.pretti.treasuresapi.processors.TreasuresProcessors;
 import dev.pretti.treasuresapi.processors.interfaces.ITreasureBuilder;
@@ -11,20 +12,20 @@ import java.util.List;
 public class TreasuresApi
 {
   /**
-  * Carrega e retorna a lista de tesouros
-  */
-  public static List<Treasure> loader(String treasureFolder)
+   * Carrega e retorna a lista de tesouros
+   */
+  public static List<Treasure> loader(@NotNull String treasureFolder, @NotNull IConditionsBuilder conditionsBuilder) throws IllegalArgumentException
   {
-    return new TreasuresLoader().loader(treasureFolder);
+    return new TreasuresLoader(conditionsBuilder).loader(treasureFolder);
   }
 
   /**
-  * Carrega e retorna os processadores de tesouros
-  */
-  public static TreasuresProcessors loader(String treasureFolder, @NotNull ITreasureBuilder builder)
+   * Carrega e retorna os processadores de tesouros
+   */
+  public static TreasuresProcessors loader(@NotNull String treasureFolder, @NotNull ITreasureBuilder builder, @NotNull IConditionsBuilder conditionsBuilder) throws IllegalArgumentException
   {
     TreasuresProcessors treasures = new TreasuresProcessors();
-    treasures.load(loader(treasureFolder), builder);
+    treasures.load(loader(treasureFolder, conditionsBuilder), builder);
     return treasures;
   }
 }
