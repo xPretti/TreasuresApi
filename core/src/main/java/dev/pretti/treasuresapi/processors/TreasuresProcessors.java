@@ -16,18 +16,24 @@ public class TreasuresProcessors
   /**
    * Métodos de processamento de tesouros
    */
-  public boolean processAll(TreasureContext context)
+  public boolean processAll(TreasureContext context, int limit)
   {
     if(treasures.isEmpty())
       {
         return false;
       }
     boolean wasRewarded = false;
+    int     count       = 0;
     for(ITreasureProcessor processor : treasures.values())
       {
+        if(count >= limit)
+          {
+            break;
+          }
         if(processor.process(context))
           {
             wasRewarded = true;
+            count++;
           }
       }
     return wasRewarded;
