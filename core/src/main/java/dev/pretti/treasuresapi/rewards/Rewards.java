@@ -1,5 +1,6 @@
 package dev.pretti.treasuresapi.rewards;
 
+import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.types.Reward;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,25 +9,23 @@ import java.util.List;
 
 public class Rewards
 {
-  private double       chance;
-  private boolean      useLooting;
-  private String       permission;
-  private List<Reward> rewards = new ArrayList<>();
+  private double        chance;
+  private String        permission;
+  private RewardOptions options;
+  private List<Reward>  rewards = new ArrayList<>();
 
   /**
    * Contrutor da classe
    */
   public Rewards()
   {
-    this.chance     = 100;
-    this.useLooting = false;
-    this.permission = "";
+    this(100D, "", new RewardOptions());
   }
 
-  public Rewards(double chance, boolean useLooting, String permission)
+  public Rewards(double chance, String permission, RewardOptions options)
   {
     this.chance     = chance;
-    this.useLooting = useLooting;
+    this.options    = options;
     this.permission = permission;
   }
 
@@ -43,14 +42,15 @@ public class Rewards
     this.chance = chance;
   }
 
-  public boolean isUseLooting()
+  @NotNull
+  public RewardOptions getOptions()
   {
-    return useLooting;
+    return options;
   }
 
-  public void setUseLooting(boolean useLooting)
+  public void setOptions(@NotNull RewardOptions options)
   {
-    this.useLooting = useLooting;
+    this.options = options;
   }
 
   public String getPermission()

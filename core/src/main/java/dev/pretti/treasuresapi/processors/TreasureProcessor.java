@@ -8,6 +8,7 @@ import dev.pretti.treasuresapi.processors.interfaces.ITreasureProcessor;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.ICommandOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IItemOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IXpOutput;
+import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.Rewards;
 import dev.pretti.treasuresapi.rewards.RewardsGroup;
 import dev.pretti.treasuresapi.rewards.Treasure;
@@ -178,7 +179,7 @@ public class TreasureProcessor implements ITreasureProcessor
                                   {
                                     if(!_processXp(context, reward))
                                       {
-                                        if(!_processItem(context, reward, rewards.isUseLooting()))
+                                        if(!_processItem(context, reward, rewards.getOptions()))
                                           {
                                             if(!_processCommands(context, reward))
                                               {
@@ -252,7 +253,7 @@ public class TreasureProcessor implements ITreasureProcessor
     return false;
   }
 
-  private boolean _processItem(TreasureContext context, Reward reward, boolean useLooting)
+  private boolean _processItem(TreasureContext context, Reward reward, @NotNull RewardOptions options)
   {
     if(reward != null)
       {
@@ -266,7 +267,7 @@ public class TreasureProcessor implements ITreasureProcessor
             ItemType   itemType   = ConverterUtils.getItemType(itemReward);
             if(itemType != null)
               {
-                itemOutput.process(context, itemType, useLooting);
+                itemOutput.process(context, itemType, options);
                 return true;
               }
           }

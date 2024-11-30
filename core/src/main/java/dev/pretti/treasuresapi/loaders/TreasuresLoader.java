@@ -4,6 +4,7 @@ import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.datatypes.commands.CommandType;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
+import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.Rewards;
 import dev.pretti.treasuresapi.rewards.RewardsGroup;
 import dev.pretti.treasuresapi.rewards.Treasure;
@@ -13,13 +14,13 @@ import dev.pretti.treasuresapi.rewards.types.XpReward;
 import dev.pretti.treasuresapi.utils.ConverterUtils;
 import dev.pretti.treasuresapi.utils.FileUtils;
 import dev.pretti.treasuresapi.utils.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -37,6 +38,7 @@ public class TreasuresLoader
   private final String _permissionSection    = "permission";
   private final String _limitSection         = "limit";
   private final String _useLootingSection    = "use-looting";
+  private final String _useFortuneSection    = "use-fortune";
   private final String _itemSection          = "item";
   private final String _typeSection          = "type";
   private final String _nameSection          = "name";
@@ -221,13 +223,10 @@ public class TreasuresLoader
     if(subRewardSection != null)
       {
         Rewards rewards = new Rewards();
+        rewards.setOptions(_optionsLoader(subRewardSection));
         if(subRewardSection.contains(_chanceSection))
           {
             rewards.setChance(subRewardSection.getDouble(_chanceSection));
-          }
-        if(subRewardSection.contains(_useLootingSection))
-          {
-            rewards.setUseLooting(subRewardSection.getBoolean(_useLootingSection));
           }
         if(subRewardSection.contains(_permissionSection))
           {
@@ -256,6 +255,26 @@ public class TreasuresLoader
             rewardsGroup.getRewards().add(rewards);
           }
       }
+  }
+
+  @NotNull
+  private RewardOptions _optionsLoader(ConfigurationSection subRewardSection)
+  {
+    if(subRewardSection != null)
+      {
+        boolean useLooting = false;
+        boolean useFortune = false;
+        if(subRewardSection.contains(_useLootingSection))
+          {
+            useLooting = subRewardSection.getBoolean(_useLootingSection);
+          }
+        if(subRewardSection.contains(_useFortuneSection))
+          {
+            useFortune = subRewardSection.getBoolean(_useFortuneSection);
+          }
+        return new RewardOptions(useLooting, useFortune);
+      }
+    return new RewardOptions();
   }
 
   @Nullable
