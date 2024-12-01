@@ -1,9 +1,14 @@
 package dev.pretti.treasuresapi.loaders;
 
 import dev.pretti.treasuresapi.conditions.Conditions;
+import dev.pretti.treasuresapi.conditions.InvalidCondition;
+import dev.pretti.treasuresapi.conditions.interfaces.ICondition;
 import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.enums.EnumAccessType;
 import dev.pretti.treasuresapi.enums.EnumConditionType;
+import dev.pretti.treasuresapi.result.TreasureResult;
+import dev.pretti.treasuresapi.result.errors.types.TreasureErrorResult;
+import dev.pretti.treasuresapi.result.errors.types.TreasureErrorsResult;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,11 +19,13 @@ public class ConditionsLoader
 {
   private final IConditionsBuilder conditionsBuilder;
   private final Conditions         conditions;
+  private final TreasureResult     treasureResult;
 
-  public ConditionsLoader(@NotNull IConditionsBuilder conditionsBuilder, @Nullable Conditions conditions)
+  public ConditionsLoader(@NotNull IConditionsBuilder conditionsBuilder, @Nullable Conditions conditions, @NotNull TreasureResult treasureResult)
   {
     this.conditionsBuilder = conditionsBuilder;
     this.conditions        = conditions;
+    this.treasureResult    = treasureResult;
   }
 
   /**
@@ -52,21 +59,16 @@ public class ConditionsLoader
     if(section != null)
       {
         EnumConditionType condType = getConditionType(section);
+        EnumAccessType    type     = getAcessType(section);
         if(condType != null && condType.equals(EnumConditionType.WORLD))
           {
-            EnumAccessType type  = getAcessType(section);
-            List<String>   names = getNames(section);
+            List<String> names = getNames(section, "values");
             if(names != null)
               {
                 if(conditions != null)
                   {
-                    try
-                      {
-                        return (conditions.addCondition(conditionsBuilder.buildWorld(type, names)));
-                      } catch(Throwable e)
-                      {
-                        return false;
-                      }
+                    ICondition result = conditionsBuilder.buildWorld(type, names);
+                    return conditions.addCondition(result);
                   }
               }
           }
@@ -79,23 +81,26 @@ public class ConditionsLoader
     if(section != null)
       {
         EnumConditionType condType = getConditionType(section);
+        EnumAccessType    type     = getAcessType(section);
         if(condType != null && condType.equals(EnumConditionType.BIOME))
           {
-            EnumAccessType type  = getAcessType(section);
-            List<String>   names = getNames(section);
+            String       inputNames = "values";
+            List<String> names      = getNames(section, inputNames);
             if(names != null)
               {
                 names.replaceAll(String::toUpperCase);
                 if(conditions != null)
                   {
-                    try
+                    ICondition result = conditionsBuilder.buildBiome(type, names);
+                    conditions.addCondition(result);
+                    InvalidCondition invalidCondition = result.getInvalidCondition();
+                    if(invalidCondition != null)
                       {
-                        return (conditions.addCondition(conditionsBuilder.buildBiome(type, names)));
-                      } catch(Throwable e)
-                      {
+                        String identifier = section.getCurrentPath() + "." + inputNames;
+                        treasureResult.addErrors(new TreasureErrorsResult(identifier, invalidCondition.getErrorMessage(), invalidCondition.getInvalidValues()));
                         return false;
                       }
-
+                    return true;
                   }
               }
           }
@@ -108,23 +113,26 @@ public class ConditionsLoader
     if(section != null)
       {
         EnumConditionType condType = getConditionType(section);
+        EnumAccessType    type     = getAcessType(section);
         if(condType != null && condType.equals(EnumConditionType.BLOCK))
           {
-            EnumAccessType type  = getAcessType(section);
-            List<String>   names = getNames(section);
+            String       inputNames = "values";
+            List<String> names      = getNames(section, inputNames);
             if(names != null)
               {
                 names.replaceAll(String::toUpperCase);
                 if(conditions != null)
                   {
-                    try
+                    ICondition result = conditionsBuilder.buildBlock(type, names);
+                    conditions.addCondition(result);
+                    InvalidCondition invalidCondition = result.getInvalidCondition();
+                    if(invalidCondition != null)
                       {
-                        return (conditions.addCondition(conditionsBuilder.buildBlock(type, names)));
-                      } catch(Throwable e)
-                      {
+                        String identifier = section.getCurrentPath() + "." + inputNames;
+                        treasureResult.addErrors(new TreasureErrorsResult(identifier, invalidCondition.getErrorMessage(), invalidCondition.getInvalidValues()));
                         return false;
                       }
-
+                    return true;
                   }
               }
           }
@@ -146,7 +154,14 @@ public class ConditionsLoader
           {
             typeValue = typeValue.trim();
           }
-        return EnumConditionType.getFromString(typeValue);
+        EnumConditionType value = EnumConditionType.getFromString(typeValue);
+        if(value == null)
+          {
+            String identifier = conditionSection.getCurrentPath() + "." + inputType;
+            treasureResult.addErrors(new TreasureErrorResult(identifier, typeValue));
+            return null;
+          }
+        return value;
       }
     return null;
   }
@@ -161,14 +176,20 @@ public class ConditionsLoader
           {
             accessValue = accessValue.trim();
           }
-        return EnumAccessType.getFromString(accessValue);
+        EnumAccessType value = EnumAccessType.getFromString(accessValue);
+        if(value == null)
+          {
+            String identifier = conditionSection.getCurrentPath() + "." + inputMethod;
+            treasureResult.addErrors(new TreasureErrorResult(identifier, accessValue));
+            return EnumAccessType.WHITELIST;
+          }
+        return value;
       }
     return EnumAccessType.WHITELIST;
   }
 
-  private List<String> getNames(ConfigurationSection conditionSection)
+  private List<String> getNames(ConfigurationSection conditionSection, String inputNames)
   {
-    String inputNames = "values";
     if(conditionSection.contains(inputNames))
       {
         List<String> values = conditionSection.getStringList(inputNames);

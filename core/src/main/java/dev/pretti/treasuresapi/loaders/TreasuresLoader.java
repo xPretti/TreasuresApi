@@ -4,6 +4,8 @@ import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.datatypes.commands.CommandType;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
+import dev.pretti.treasuresapi.result.TreasureResult;
+import dev.pretti.treasuresapi.result.interfaces.ITreasureResult;
 import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.Rewards;
 import dev.pretti.treasuresapi.rewards.RewardsGroup;
@@ -31,28 +33,28 @@ import java.util.Set;
 
 public class TreasuresLoader
 {
-  private final String _treasureSection      = "sections";
-  private final String _randomRewardsSection = "random";
-  private final String _rewardsSection       = "rewards";
-  private final String _chanceSection        = "chance";
-  private final String _permissionSection    = "permission";
-  private final String _limitSection         = "limit";
-  private final String _useLootingSection    = "use-looting";
-  private final String _useFortuneSection    = "use-fortune";
-  private final String _itemSection          = "item";
-  private final String _typeSection          = "type";
-  private final String _nameSection          = "name";
-  private final String _loresSection         = "lores";
-  private final String _amountSection        = "amount";
-  private final String _enchantsSection      = "enchants";
-  private final String _expSection           = "exp";
-  private final String _xpLevelSection       = "level";
-  private final String _commandsSection      = "commands";
-  private final String _flagsSection         = "flags";
+  private static final String _treasureSection      = "sections";
+  private static final String _randomRewardsSection = "random";
+  private static final String _rewardsSection       = "rewards";
+  private static final String _chanceSection        = "chance";
+  private static final String _permissionSection    = "permission";
+  private static final String _limitSection         = "limit";
+  private static final String _useLootingSection    = "use-looting";
+  private static final String _useFortuneSection    = "use-fortune";
+  private static final String _itemSection          = "item";
+  private static final String _typeSection          = "type";
+  private static final String _nameSection          = "name";
+  private static final String _loresSection         = "lores";
+  private static final String _amountSection        = "amount";
+  private static final String _enchantsSection      = "enchants";
+  private static final String _expSection           = "exp";
+  private static final String _xpLevelSection       = "level";
+  private static final String _commandsSection      = "commands";
+  private static final String _flagsSection         = "flags";
 
   private final IConditionsBuilder conditionsBuilder;
 
-  private int errors = 0;
+  private final TreasureResult treasureResult = new TreasureResult();
 
   /**
    * Contrutor da classe
@@ -65,16 +67,11 @@ public class TreasuresLoader
   /**
    * Método de carregamento dos tesouros
    */
-  @Nullable
-  public List<Treasure> loader(String folder) throws IllegalArgumentException
+  @NotNull
+  public ITreasureResult loader(String folder)
   {
-    errors = 0;
-    List<Treasure> treasures = _convert(folder);
-    if(errors > 0)
-      {
-        throw new IllegalArgumentException("Error loading treasures.");
-      }
-    return (treasures);
+    treasureResult.setTreasures(_convert(folder));
+    return (treasureResult);
   }
 
   /**
@@ -130,8 +127,8 @@ public class TreasuresLoader
         String   treasureName = currentSection.getName();
         Treasure treasure     = new Treasure();
 
-        ConditionsLoader conditionsLoader = new ConditionsLoader(conditionsBuilder, treasure.getConditions());
-        errors += conditionsLoader.loader(currentSection) ? 0 : 1;
+        ConditionsLoader conditionsLoader = new ConditionsLoader(conditionsBuilder, treasure.getConditions(), treasureResult);
+        conditionsLoader.loader(currentSection);
 
         treasure.setName(treasureName);
         if(currentSection.contains(_chanceSection))
