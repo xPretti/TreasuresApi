@@ -112,13 +112,26 @@ public class ConverterUtils
   /**
    * Método de conversão de comandos
    */
+  public static String getCommandText(String text)
+  {
+    if(text != null)
+      {
+        int startIndex = Math.max(0, text.indexOf("["));
+        int endIndex   = text.indexOf("]");
+        endIndex = endIndex == -1 ? text.length()-1 : endIndex;
+        return text.substring(startIndex, endIndex+1);
+      }
+    return "";
+  }
+
   @Nullable
   public static CommandType getCommandType(String text)
   {
     if(text != null)
       {
-        int    startIndex = text.indexOf("[");
-        int    endIndex   = text.indexOf("]");
+        int startIndex = Math.max(0, text.indexOf("["));
+        int endIndex   = text.indexOf("]");
+        endIndex = endIndex == -1 ? text.length()-1 : endIndex;
         String type       = text.substring(startIndex, endIndex);
         String action     = text.substring(endIndex + 1).trim();
         type = type.replace("[", "").replace("]", "");

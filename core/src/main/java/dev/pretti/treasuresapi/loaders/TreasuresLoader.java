@@ -5,6 +5,7 @@ import dev.pretti.treasuresapi.datatypes.commands.CommandType;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
 import dev.pretti.treasuresapi.result.TreasureResult;
+import dev.pretti.treasuresapi.result.errors.types.TreasureErrorsResult;
 import dev.pretti.treasuresapi.result.interfaces.ITreasureResult;
 import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.Rewards;
@@ -26,10 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TreasuresLoader
 {
@@ -241,7 +239,7 @@ public class TreasuresLoader
           }
         if(subRewardSection.contains(_commandsSection))
           {
-            rewards.getRewards().add(_commandLoader(subRewardSection.getStringList(_commandsSection)));
+            rewards.getRewards().add(_commandLoader(subRewardSection.getStringList(_commandsSection), subRewardSection.getCurrentPath() + "." + _commandsSection));
           }
         if(subRewardSection.contains(_itemSection))
           {
@@ -275,7 +273,7 @@ public class TreasuresLoader
   }
 
   @Nullable
-  private CommandReward _commandLoader(List<String> values)
+  private CommandReward _commandLoader(List<String> values, String sectionName)
   {
     if(values != null)
       {
@@ -283,6 +281,8 @@ public class TreasuresLoader
           {
             CommandReward commandReward = new CommandReward();
             CommandType   type;
+
+            List<String> erros = new ArrayList<>();
             for(String command : values)
               {
                 type = ConverterUtils.getCommandType(command);
@@ -290,6 +290,14 @@ public class TreasuresLoader
                   {
                     commandReward.getCommands().add(type);
                   }
+                else
+                  {
+                    erros.add(ConverterUtils.getCommandText(command));
+                  }
+              }
+            if(!erros.isEmpty())
+              {
+                treasureResult.addErrors(new TreasureErrorsResult(sectionName, "Invalid command type", erros));
               }
             return commandReward;
           }
@@ -318,18 +326,18 @@ public class TreasuresLoader
     if(itemSection != null)
       {
         ItemReward itemReward = new ItemReward();
-        _itemLoaderType(itemSection, itemReward);
+        boolean    created    = _itemLoaderType(itemSection, itemReward);
         _itemLoaderName(itemSection, itemReward);
         _itemLoaderLore(itemSection, itemReward);
         _itemLoaderAmount(itemSection, itemReward);
         _itemLoaderEnchant(itemSection, itemReward);
         _itemLoaderFlags(itemSection, itemReward);
-        return itemReward;
+        return created ? itemReward : null;
       }
     return null;
   }
 
-  private void _itemLoaderType(ConfigurationSection itemSection, ItemReward itemReward)
+  private boolean _itemLoaderType(ConfigurationSection itemSection, ItemReward itemReward)
   {
     String   name     = _typeSection;
     Material material = Material.STONE;
@@ -348,9 +356,14 @@ public class TreasuresLoader
               {
                 data = Byte.parseByte(typeArray[1]);
               }
+            if(material == null)
+              {
+                treasureResult.addErrors(new TreasureErrorsResult(itemSection.getCurrentPath() + "." + name, "Invalid material type", Collections.singletonList(typeArray[0])));
+              }
           }
       }
     itemReward.setMaterial(material, data);
+    return (material != null);
   }
 
   private void _itemLoaderName(ConfigurationSection itemSection, ItemReward itemReward)
@@ -393,6 +406,7 @@ public class TreasuresLoader
         List<String> enchants = itemSection.getStringList(name);
         if(!enchants.isEmpty())
           {
+            List<String>         errors      = new ArrayList<>();
             List<EnchantDynamic> enchantList = new ArrayList<>();
             for(String value : enchants)
               {
@@ -402,14 +416,27 @@ public class TreasuresLoader
                   {
                     if(!values.isEmpty())
                       {
-                        EnchantDynamic enchantDynamic = new EnchantDynamic(Enchantment.getByName(values.get(0)), 1, 1);
-                        if(values.size() > 1)
+                        Enchantment enchantment = Enchantment.getByName(values.get(0));
+                        if(enchantment != null)
                           {
-                            ConverterUtils.setDynamic(enchantDynamic, values.get(1));
+                            EnchantDynamic enchantDynamic = new EnchantDynamic(enchantment, 1, 1);
+                            if(values.size() > 1)
+                              {
+                                ConverterUtils.setDynamic(enchantDynamic, values.get(1));
+                              }
+                            enchantList.add(enchantDynamic);
                           }
-                        enchantList.add(enchantDynamic);
+                        else
+                          {
+                            errors.add(ConverterUtils.getCommandText(value));
+                          }
                       }
                   }
+              }
+            if(!errors.isEmpty())
+              {
+                treasureResult.addErrors(new TreasureErrorsResult(itemSection.getCurrentPath() + "." + name, "Invalid enchant type", errors));
+                return;
               }
             itemReward.setEnchant(enchantList);
           }
@@ -424,13 +451,25 @@ public class TreasuresLoader
         List<String> flagsText = itemSection.getStringList(name);
         if(!flagsText.isEmpty())
           {
+            List<String>  errors = new ArrayList<>();
             ItemFlag      newFlag;
-            Set<ItemFlag> flags = new HashSet<>();
+            Set<ItemFlag> flags  = new HashSet<>();
             for(String flagName : flagsText)
               {
-                flagName = flagName.trim().toUpperCase();
-                newFlag  = ItemFlag.valueOf(flagName);
-                flags.add(newFlag);
+                try
+                  {
+                    flagName = flagName.trim().toUpperCase();
+                    newFlag  = ItemFlag.valueOf(flagName);
+                    flags.add(newFlag);
+                  } catch(Throwable ignored)
+                  {
+                    errors.add(ConverterUtils.getCommandText(flagName));
+                  }
+              }
+            if(!errors.isEmpty())
+              {
+                treasureResult.addErrors(new TreasureErrorsResult(itemSection.getCurrentPath() + "." + name, "Invalid flags type", errors));
+                return;
               }
             itemReward.setFlags(flags);
           }
