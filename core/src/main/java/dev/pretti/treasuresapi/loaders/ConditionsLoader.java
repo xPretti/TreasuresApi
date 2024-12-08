@@ -6,9 +6,7 @@ import dev.pretti.treasuresapi.conditions.interfaces.ICondition;
 import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.enums.EnumAccessType;
 import dev.pretti.treasuresapi.enums.EnumConditionType;
-import dev.pretti.treasuresapi.result.TreasureResult;
-import dev.pretti.treasuresapi.result.errors.types.TreasureErrorResult;
-import dev.pretti.treasuresapi.result.errors.types.TreasureErrorsResult;
+import dev.pretti.treasuresapi.errors.interfaces.ITreasureErrorLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,15 +15,15 @@ import java.util.List;
 
 public class ConditionsLoader
 {
-  private final IConditionsBuilder conditionsBuilder;
-  private final Conditions         conditions;
-  private final TreasureResult     treasureResult;
+  private final IConditionsBuilder     conditionsBuilder;
+  private final Conditions           conditions;
+  private final ITreasureErrorLogger treasureErrorsManager;
 
-  public ConditionsLoader(@NotNull IConditionsBuilder conditionsBuilder, @Nullable Conditions conditions, @NotNull TreasureResult treasureResult)
+  public ConditionsLoader(@NotNull IConditionsBuilder conditionsBuilder, @Nullable Conditions conditions, @Nullable ITreasureErrorLogger treasureErrorsManager)
   {
-    this.conditionsBuilder = conditionsBuilder;
-    this.conditions        = conditions;
-    this.treasureResult    = treasureResult;
+    this.conditionsBuilder     = conditionsBuilder;
+    this.conditions            = conditions;
+    this.treasureErrorsManager = treasureErrorsManager;
   }
 
   /**
@@ -96,8 +94,11 @@ public class ConditionsLoader
                     InvalidCondition invalidCondition = result.getInvalidCondition();
                     if(invalidCondition != null)
                       {
-                        String identifier = section.getCurrentPath() + "." + inputNames;
-                        treasureResult.addErrors(new TreasureErrorsResult(identifier, invalidCondition.getErrorMessage(), invalidCondition.getInvalidValues()));
+                        if(treasureErrorsManager != null)
+                          {
+                            String identifier = section.getCurrentPath() + "." + inputNames;
+                            treasureErrorsManager.add(identifier, invalidCondition.getInvalidValues(), invalidCondition.getErrorMessage());
+                          }
                         return false;
                       }
                     return true;
@@ -128,8 +129,11 @@ public class ConditionsLoader
                     InvalidCondition invalidCondition = result.getInvalidCondition();
                     if(invalidCondition != null)
                       {
-                        String identifier = section.getCurrentPath() + "." + inputNames;
-                        treasureResult.addErrors(new TreasureErrorsResult(identifier, invalidCondition.getErrorMessage(), invalidCondition.getInvalidValues()));
+                        if(treasureErrorsManager != null)
+                          {
+                            String identifier = section.getCurrentPath() + "." + inputNames;
+                            treasureErrorsManager.add(identifier, invalidCondition.getInvalidValues(), invalidCondition.getErrorMessage());
+                          }
                         return false;
                       }
                     return true;
@@ -157,8 +161,11 @@ public class ConditionsLoader
         EnumConditionType value = EnumConditionType.getFromString(typeValue);
         if(value == null)
           {
-            String identifier = conditionSection.getCurrentPath() + "." + inputType;
-            treasureResult.addErrors(new TreasureErrorResult(identifier, typeValue));
+            if(treasureErrorsManager != null)
+              {
+                String identifier = conditionSection.getCurrentPath() + "." + inputType;
+                treasureErrorsManager.add(identifier, typeValue, "Invalid condition type");
+              }
             return null;
           }
         return value;
@@ -179,8 +186,11 @@ public class ConditionsLoader
         EnumAccessType value = EnumAccessType.getFromString(accessValue);
         if(value == null)
           {
-            String identifier = conditionSection.getCurrentPath() + "." + inputMethod;
-            treasureResult.addErrors(new TreasureErrorResult(identifier, accessValue));
+            if(treasureErrorsManager != null)
+              {
+                String identifier = conditionSection.getCurrentPath() + "." + inputMethod;
+                treasureErrorsManager.add(identifier, accessValue, "Invalid access type");
+              }
             return EnumAccessType.WHITELIST;
           }
         return value;

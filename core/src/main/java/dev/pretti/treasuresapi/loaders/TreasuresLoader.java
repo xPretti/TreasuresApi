@@ -4,9 +4,8 @@ import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.datatypes.commands.CommandType;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
-import dev.pretti.treasuresapi.result.TreasureResult;
-import dev.pretti.treasuresapi.result.errors.types.TreasureErrorsResult;
-import dev.pretti.treasuresapi.result.interfaces.ITreasureResult;
+import dev.pretti.treasuresapi.errors.TreasureErrorLogger;
+import dev.pretti.treasuresapi.errors.interfaces.ITreasureErrorLogger;
 import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.Rewards;
 import dev.pretti.treasuresapi.rewards.RewardsGroup;
@@ -14,6 +13,7 @@ import dev.pretti.treasuresapi.rewards.Treasure;
 import dev.pretti.treasuresapi.rewards.types.CommandReward;
 import dev.pretti.treasuresapi.rewards.types.ItemReward;
 import dev.pretti.treasuresapi.rewards.types.XpReward;
+import dev.pretti.treasuresapi.throwz.InvalidTreasuresLoaderException;
 import dev.pretti.treasuresapi.utils.ConverterUtils;
 import dev.pretti.treasuresapi.utils.FileUtils;
 import dev.pretti.treasuresapi.utils.StringUtils;
@@ -27,7 +27,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TreasuresLoader
 {
@@ -52,7 +55,7 @@ public class TreasuresLoader
 
   private final IConditionsBuilder conditionsBuilder;
 
-  private final TreasureResult treasureResult = new TreasureResult();
+  private ITreasureErrorLogger treasureErrorsManager;
 
   /**
    * Contrutor da classe
@@ -65,11 +68,16 @@ public class TreasuresLoader
   /**
    * Método de carregamento dos tesouros
    */
-  @NotNull
-  public ITreasureResult loader(String folder)
+  @Nullable
+  public List<Treasure> loader(String folder) throws InvalidTreasuresLoaderException
   {
-    treasureResult.setTreasures(_convert(folder));
-    return (treasureResult);
+    this.treasureErrorsManager = new TreasureErrorLogger();
+    List<Treasure> treasures = _convert(folder);
+    if(treasureErrorsManager.getTotal() > 0)
+      {
+        throw new InvalidTreasuresLoaderException("There were some errors loading the treasures.", treasureErrorsManager, treasures);
+      }
+    return (treasures);
   }
 
   /**
@@ -125,7 +133,7 @@ public class TreasuresLoader
         String   treasureName = currentSection.getName();
         Treasure treasure     = new Treasure();
 
-        ConditionsLoader conditionsLoader = new ConditionsLoader(conditionsBuilder, treasure.getConditions(), treasureResult);
+        ConditionsLoader conditionsLoader = new ConditionsLoader(conditionsBuilder, treasure.getConditions(), treasureErrorsManager);
         conditionsLoader.loader(currentSection);
 
         treasure.setName(treasureName);
@@ -297,7 +305,7 @@ public class TreasuresLoader
               }
             if(!erros.isEmpty())
               {
-                treasureResult.addErrors(new TreasureErrorsResult(sectionName, "Invalid command type", erros));
+                treasureErrorsManager.add(sectionName, erros, "Invalid command type");
               }
             return commandReward;
           }
@@ -358,7 +366,8 @@ public class TreasuresLoader
               }
             if(material == null)
               {
-                treasureResult.addErrors(new TreasureErrorsResult(itemSection.getCurrentPath() + "." + name, "Invalid material type", Collections.singletonList(typeArray[0])));
+                String identifier = itemSection.getCurrentPath();
+                treasureErrorsManager.add(identifier, type, "Invalid material type");
               }
           }
       }
@@ -435,7 +444,8 @@ public class TreasuresLoader
               }
             if(!errors.isEmpty())
               {
-                treasureResult.addErrors(new TreasureErrorsResult(itemSection.getCurrentPath() + "." + name, "Invalid enchant type", errors));
+                String identifier = itemSection.getCurrentPath();
+                treasureErrorsManager.add(identifier, errors, "Invalid enchantment type");
                 return;
               }
             itemReward.setEnchant(enchantList);
@@ -468,7 +478,8 @@ public class TreasuresLoader
               }
             if(!errors.isEmpty())
               {
-                treasureResult.addErrors(new TreasureErrorsResult(itemSection.getCurrentPath() + "." + name, "Invalid flags type", errors));
+                String identifier = itemSection.getCurrentPath();
+                treasureErrorsManager.add(identifier, errors, "Invalid flags type");
                 return;
               }
             itemReward.setFlags(flags);

@@ -48,7 +48,7 @@ public class TreasuresProcessors
   /**
    * Carrega os tesouros e seus processadores.
    */
-  public boolean load(List<Treasure> treasuresList, @NotNull ITreasureBuilder builder) throws IllegalArgumentException
+  public boolean load(List<Treasure> treasuresList, @NotNull ITreasureBuilder builder)
   {
     treasures.clear();
     if(treasuresList == null || treasuresList.isEmpty())
