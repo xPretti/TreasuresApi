@@ -2,6 +2,7 @@ package dev.pretti.treasuresapi.loaders;
 
 import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.datatypes.commands.CommandType;
+import dev.pretti.treasuresapi.dynamics.DoubleDynamic;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
 import dev.pretti.treasuresapi.errors.TreasureErrorLogger;
@@ -12,6 +13,7 @@ import dev.pretti.treasuresapi.rewards.RewardsGroup;
 import dev.pretti.treasuresapi.rewards.Treasure;
 import dev.pretti.treasuresapi.rewards.types.CommandReward;
 import dev.pretti.treasuresapi.rewards.types.ItemReward;
+import dev.pretti.treasuresapi.rewards.types.MoneyReward;
 import dev.pretti.treasuresapi.rewards.types.XpReward;
 import dev.pretti.treasuresapi.throwz.InvalidTreasuresLoaderException;
 import dev.pretti.treasuresapi.utils.ConverterUtils;
@@ -50,6 +52,7 @@ public class TreasuresLoader
   private static final String _enchantsSection      = "enchants";
   private static final String _expSection           = "exp";
   private static final String _xpLevelSection       = "level";
+  private static final String _moneySection         = "money";
   private static final String _commandsSection      = "commands";
   private static final String _flagsSection         = "flags";
 
@@ -246,6 +249,11 @@ public class TreasuresLoader
             String exp = subRewardSection.getString(_xpLevelSection);
             rewards.getRewards().add(_expLoader(exp, true));
           }
+        if(subRewardSection.contains(_moneySection))
+          {
+            String money = subRewardSection.getString(_moneySection);
+            rewards.getRewards().add(_moneyLoader(money));
+          }
         if(subRewardSection.contains(_itemSection))
           {
             rewards.getRewards().add(_itemLoader(subRewardSection));
@@ -324,6 +332,20 @@ public class TreasuresLoader
         ConverterUtils.setDynamic(dynamic, value);
         expReward.setXp(dynamic);
         return expReward;
+      }
+    return null;
+  }
+
+  @Nullable
+  private MoneyReward _moneyLoader(String value)
+  {
+    if(value != null)
+      {
+        MoneyReward   moneyReward = new MoneyReward();
+        DoubleDynamic dynamic     = new DoubleDynamic();
+        ConverterUtils.setDynamic(dynamic, value);
+        moneyReward.setMoney(dynamic);
+        return moneyReward;
       }
     return null;
   }

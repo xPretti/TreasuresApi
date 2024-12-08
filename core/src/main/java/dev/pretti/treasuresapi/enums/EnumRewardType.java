@@ -4,5 +4,6 @@ public enum EnumRewardType
 {
   COMMAND,
   ITEM,
-  XP
+  XP,
+  MONEY
 }

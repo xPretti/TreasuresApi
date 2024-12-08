@@ -7,15 +7,13 @@ import dev.pretti.treasuresapi.processors.context.TreasureContext;
 import dev.pretti.treasuresapi.processors.interfaces.ITreasureProcessor;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.ICommandOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IItemOutput;
+import dev.pretti.treasuresapi.processors.interfaces.outputs.IMoneyOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IXpOutput;
 import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.Rewards;
 import dev.pretti.treasuresapi.rewards.RewardsGroup;
 import dev.pretti.treasuresapi.rewards.Treasure;
-import dev.pretti.treasuresapi.rewards.types.CommandReward;
-import dev.pretti.treasuresapi.rewards.types.ItemReward;
-import dev.pretti.treasuresapi.rewards.types.Reward;
-import dev.pretti.treasuresapi.rewards.types.XpReward;
+import dev.pretti.treasuresapi.rewards.types.*;
 import dev.pretti.treasuresapi.utils.CloneableUtils;
 import dev.pretti.treasuresapi.utils.ConverterUtils;
 import dev.pretti.treasuresapi.utils.MathUtils;
@@ -29,6 +27,7 @@ public class TreasureProcessor implements ITreasureProcessor
 {
   private final Treasure       treasure;
   private final IXpOutput      xpOutput;
+  private final IMoneyOutput   moneyOutput;
   private final ICommandOutput commandOutput;
   private final IItemOutput    itemOutput;
 
@@ -37,11 +36,13 @@ public class TreasureProcessor implements ITreasureProcessor
    */
   public TreasureProcessor(@NotNull Treasure treasure,
                            @Nullable IXpOutput xpOutput,
+                           @Nullable IMoneyOutput moneyOutput,
                            @Nullable ICommandOutput commandOutput,
                            @Nullable IItemOutput itemOutput)
   {
     this.treasure      = treasure;
     this.xpOutput      = xpOutput;
+    this.moneyOutput   = moneyOutput;
     this.commandOutput = commandOutput;
     this.itemOutput    = itemOutput;
   }
@@ -180,11 +181,14 @@ public class TreasureProcessor implements ITreasureProcessor
                                   {
                                     if(!_processXp(context, reward))
                                       {
-                                        if(!_processItem(context, reward, rewards.getOptions()))
+                                        if(!_processMoney(context, reward))
                                           {
-                                            if(!_processCommands(context, reward))
+                                            if(!_processItem(context, reward, rewards.getOptions()))
                                               {
-                                                continue;
+                                                if(!_processCommands(context, reward))
+                                                  {
+                                                    continue;
+                                                  }
                                               }
                                           }
                                       }
@@ -247,6 +251,31 @@ public class TreasureProcessor implements ITreasureProcessor
                   {
                     context.getRewardContext().setXp(amount);
                     xpOutput.process(context, amount, xpReward.isLevel());
+                    return true;
+                  }
+              }
+          }
+      }
+    return false;
+  }
+
+  private boolean _processMoney(TreasureContext context, Reward reward)
+  {
+    if(reward != null)
+      {
+        if(reward instanceof MoneyReward)
+          {
+            if(moneyOutput == null)
+              {
+                return true;
+              }
+            MoneyReward moneyReward = (MoneyReward) reward;
+            if(moneyReward.getMoney() != null)
+              {
+                double amount = moneyReward.getMoney().getValue();
+                if(amount != 0)
+                  {
+                    moneyOutput.process(context, amount);
                     return true;
                   }
               }

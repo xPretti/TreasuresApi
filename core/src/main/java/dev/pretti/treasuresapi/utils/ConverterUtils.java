@@ -81,32 +81,36 @@ public class ConverterUtils
     if(text != null && ref != null)
       {
         String   fixText = text.trim();
-        String[] texts   = fixText.split("-");
+        String[] texts   = fixText.split("~");
         if(texts.length > 0)
           {
+            double v1 = parseDoubleSafe(texts[0]);
+            double v2 = texts.length > 1 ? parseDoubleSafe(texts[1]) : 0;
             if(ref instanceof IntDynamic)
               {
-                ((IntDynamic) ref).setMin(Integer.valueOf(texts[0]));
+                IntDynamic intDyn = (IntDynamic) ref;
+                intDyn.setMinAndMax((int) v1, (int) v2);
               }
             else if(ref instanceof DoubleDynamic)
               {
-                ((DoubleDynamic) ref).setMin(Double.valueOf(texts[0]));
-              }
-            if(texts.length > 1)
-              {
-                if(ref instanceof IntDynamic)
-                  {
-                    ((IntDynamic) ref).setMax(Integer.valueOf(texts[1]));
-                  }
-                else if(ref instanceof DoubleDynamic)
-                  {
-                    ((DoubleDynamic) ref).setMax(Double.valueOf(texts[1]));
-                  }
+                DoubleDynamic doubleDyn = (DoubleDynamic) ref;
+                doubleDyn.setMinAndMax(v1, v2);
               }
             return true;
           }
       }
     return false;
+  }
+
+  private static double parseDoubleSafe(String text)
+  {
+    try
+      {
+        return Double.parseDouble(text);
+      } catch(NumberFormatException e)
+      {
+        return 0;
+      }
   }
 
   /**
@@ -118,8 +122,8 @@ public class ConverterUtils
       {
         int startIndex = Math.max(0, text.indexOf("["));
         int endIndex   = text.indexOf("]");
-        endIndex = endIndex == -1 ? text.length()-1 : endIndex;
-        return text.substring(startIndex, endIndex+1);
+        endIndex = endIndex == -1 ? text.length() - 1 : endIndex;
+        return text.substring(startIndex, endIndex + 1);
       }
     return "";
   }
@@ -131,9 +135,9 @@ public class ConverterUtils
       {
         int startIndex = Math.max(0, text.indexOf("["));
         int endIndex   = text.indexOf("]");
-        endIndex = endIndex == -1 ? text.length()-1 : endIndex;
-        String type       = text.substring(startIndex, endIndex);
-        String action     = text.substring(endIndex + 1).trim();
+        endIndex = endIndex == -1 ? text.length() - 1 : endIndex;
+        String type   = text.substring(startIndex, endIndex);
+        String action = text.substring(endIndex + 1).trim();
         type = type.replace("[", "").replace("]", "");
         EnumParseType commandType = EnumParseType.getFromString(type);
         return convertToCommandType(commandType, action);
