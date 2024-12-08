@@ -7,6 +7,7 @@ public class RewardContext
 {
   private ItemType itemType = null;
   private int      xp       = 0;
+  private double   money    = 0;
 
   /**
    * Definições e retornos
@@ -32,6 +33,16 @@ public class RewardContext
     this.xp = xp;
   }
 
+  public double getMoney()
+  {
+    return money;
+  }
+
+  public void setMoney(double money)
+  {
+    this.money = money;
+  }
+
   /**
    * Limpa a classe
    */
@@ -39,5 +50,6 @@ public class RewardContext
   {
     this.itemType = null;
     this.xp       = 0;
+    this.money    = 0;
   }
 }

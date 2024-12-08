@@ -275,6 +275,7 @@ public class TreasureProcessor implements ITreasureProcessor
                 double amount = moneyReward.getMoney().getValue();
                 if(amount != 0)
                   {
+                    context.getRewardContext().setMoney(amount);
                     moneyOutput.process(context, amount);
                     return true;
                   }
