@@ -174,6 +174,7 @@ public class TreasureProcessor implements ITreasureProcessor
                           {
                             if(hasPermission(player, rewards.getPermission()))
                               {
+                                context.getRewardContext().reset();
                                 count++;
                                 for(Reward reward : rewards.getRewards())
                                   {
@@ -244,6 +245,7 @@ public class TreasureProcessor implements ITreasureProcessor
                 int amount = xpReward.getXp().getValue();
                 if(amount != 0)
                   {
+                    context.getRewardContext().setXp(amount);
                     xpOutput.process(context, amount, xpReward.isLevel());
                     return true;
                   }
@@ -267,6 +269,7 @@ public class TreasureProcessor implements ITreasureProcessor
             ItemType   itemType   = ConverterUtils.getItemType(itemReward);
             if(itemType != null)
               {
+                context.getRewardContext().setItemType(itemType);
                 itemOutput.process(context, itemType, options);
                 return true;
               }

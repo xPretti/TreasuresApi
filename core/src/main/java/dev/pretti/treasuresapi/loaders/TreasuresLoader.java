@@ -227,6 +227,7 @@ public class TreasuresLoader
       {
         Rewards rewards = new Rewards();
         rewards.setOptions(_optionsLoader(subRewardSection));
+
         if(subRewardSection.contains(_chanceSection))
           {
             rewards.setChance(subRewardSection.getDouble(_chanceSection));
@@ -245,13 +246,13 @@ public class TreasuresLoader
             String exp = subRewardSection.getString(_xpLevelSection);
             rewards.getRewards().add(_expLoader(exp, true));
           }
-        if(subRewardSection.contains(_commandsSection))
-          {
-            rewards.getRewards().add(_commandLoader(subRewardSection.getStringList(_commandsSection), subRewardSection.getCurrentPath() + "." + _commandsSection));
-          }
         if(subRewardSection.contains(_itemSection))
           {
             rewards.getRewards().add(_itemLoader(subRewardSection));
+          }
+        if(subRewardSection.contains(_commandsSection))
+          {
+            rewards.getRewards().add(_commandLoader(subRewardSection.getStringList(_commandsSection), subRewardSection.getCurrentPath() + "." + _commandsSection));
           }
         if(!rewards.getRewards().isEmpty())
           {

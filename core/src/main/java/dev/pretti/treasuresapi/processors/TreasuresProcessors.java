@@ -10,7 +10,6 @@ import java.util.*;
 
 public class TreasuresProcessors
 {
-
   private final Map<String, ITreasureProcessor> treasures = new HashMap<>();
 
   /**

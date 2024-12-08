@@ -2,11 +2,15 @@ package dev.pretti.treasuresapi.processors.context;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class TreasureContext
 {
   private final Player   player;
   private final Location eventLocation;
+
+  // Rewards context
+  private final RewardContext rewardContext = new RewardContext();
 
   /**
    * Construtor da classe
@@ -28,5 +32,11 @@ public class TreasureContext
   public Location getEventLocation()
   {
     return eventLocation;
+  }
+
+  @NotNull
+  public RewardContext getRewardContext()
+  {
+    return rewardContext;
   }
 }
