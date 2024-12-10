@@ -1,9 +1,11 @@
 package dev.pretti.treasuresapi.loaders;
 
 import dev.pretti.treasuresapi.conditions.Conditions;
-import dev.pretti.treasuresapi.conditions.InvalidCondition;
 import dev.pretti.treasuresapi.conditions.interfaces.ICondition;
 import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
+import dev.pretti.treasuresapi.conditions.interfaces.IInvalidCondition;
+import dev.pretti.treasuresapi.conditions.invalids.ComparatorInvalidCondition;
+import dev.pretti.treasuresapi.conditions.invalids.ListInvalidCondition;
 import dev.pretti.treasuresapi.enums.EnumAccessType;
 import dev.pretti.treasuresapi.enums.EnumConditionType;
 import dev.pretti.treasuresapi.errors.interfaces.ITreasureErrorLogger;
@@ -15,7 +17,7 @@ import java.util.List;
 
 public class ConditionsLoader
 {
-  private final IConditionsBuilder     conditionsBuilder;
+  private final IConditionsBuilder   conditionsBuilder;
   private final Conditions           conditions;
   private final ITreasureErrorLogger treasureErrorsManager;
 
@@ -39,9 +41,23 @@ public class ConditionsLoader
             boolean sucess = true;
             for(String key : conditionSection.getKeys(false))
               {
-                sucess = _world(conditionSection.getConfigurationSection(key)) && sucess;
-                sucess = _biome(conditionSection.getConfigurationSection(key)) && sucess;
-                sucess = _block(conditionSection.getConfigurationSection(key)) && sucess;
+                ConfigurationSection newSection = conditionSection.getConfigurationSection(key);
+                if(newSection != null)
+                  {
+                    EnumConditionType condType = getConditionType(newSection);
+                    if(condType != null)
+                      {
+                        sucess = _world(newSection, condType) && sucess;
+                        sucess = _biome(newSection, condType) && sucess;
+                        sucess = _block(newSection, condType) && sucess;
+                        sucess = _comparator(newSection, condType) && sucess;
+                        sucess = _numberComparator(newSection, condType) && sucess;
+                      }
+                    else
+                      {
+                        sucess = false;
+                      }
+                  }
               }
             return sucess;
           }
@@ -52,21 +68,23 @@ public class ConditionsLoader
   /**
    * Tipos de carregamentos
    */
-  private boolean _world(ConfigurationSection section)
+  private boolean _world(ConfigurationSection section, EnumConditionType condType)
   {
     if(section != null)
       {
-        EnumConditionType condType = getConditionType(section);
-        EnumAccessType    type     = getAcessType(section);
         if(condType != null && condType.equals(EnumConditionType.WORLD))
           {
-            List<String> names = getNames(section, "values");
+            EnumAccessType type  = getAcessType(section);
+            List<String>   names = getTexts(section, "values");
             if(names != null)
               {
                 if(conditions != null)
                   {
                     ICondition result = conditionsBuilder.buildWorld(type, names);
-                    return conditions.addCondition(result);
+                    if(result != null)
+                      {
+                        return conditions.addCondition(result);
+                      }
                   }
               }
           }
@@ -74,34 +92,37 @@ public class ConditionsLoader
     return true;
   }
 
-  private boolean _biome(ConfigurationSection section)
+  private boolean _biome(ConfigurationSection section, EnumConditionType condType)
   {
     if(section != null)
       {
-        EnumConditionType condType = getConditionType(section);
-        EnumAccessType    type     = getAcessType(section);
         if(condType != null && condType.equals(EnumConditionType.BIOME))
           {
-            String       inputNames = "values";
-            List<String> names      = getNames(section, inputNames);
+            EnumAccessType type       = getAcessType(section);
+            String         inputNames = "values";
+            List<String>   names      = getTexts(section, inputNames);
             if(names != null)
               {
                 names.replaceAll(String::toUpperCase);
                 if(conditions != null)
                   {
                     ICondition result = conditionsBuilder.buildBiome(type, names);
-                    conditions.addCondition(result);
-                    InvalidCondition invalidCondition = result.getInvalidCondition();
-                    if(invalidCondition != null)
+                    if(result != null)
                       {
-                        if(treasureErrorsManager != null)
+                        conditions.addCondition(result);
+                        IInvalidCondition invalidCondition = result.getInvalidCondition();
+                        if(invalidCondition instanceof ListInvalidCondition)
                           {
-                            String identifier = section.getCurrentPath() + "." + inputNames;
-                            treasureErrorsManager.add(identifier, invalidCondition.getInvalidValues(), invalidCondition.getErrorMessage());
+                            ListInvalidCondition listInvalidCondition = (ListInvalidCondition) invalidCondition;
+                            if(treasureErrorsManager != null)
+                              {
+                                String identifier = section.getCurrentPath() + "." + inputNames;
+                                treasureErrorsManager.add(identifier, listInvalidCondition.getInvalidValues(), invalidCondition.getErrorMessage());
+                              }
+                            return false;
                           }
-                        return false;
+                        return true;
                       }
-                    return true;
                   }
               }
           }
@@ -109,39 +130,153 @@ public class ConditionsLoader
     return true;
   }
 
-  private boolean _block(ConfigurationSection section)
+  private boolean _block(ConfigurationSection section, EnumConditionType condType)
   {
     if(section != null)
       {
-        EnumConditionType condType = getConditionType(section);
-        EnumAccessType    type     = getAcessType(section);
         if(condType != null && condType.equals(EnumConditionType.BLOCK))
           {
-            String       inputNames = "values";
-            List<String> names      = getNames(section, inputNames);
+            EnumAccessType type       = getAcessType(section);
+            String         inputNames = "values";
+            List<String>   names      = getTexts(section, inputNames);
             if(names != null)
               {
                 names.replaceAll(String::toUpperCase);
                 if(conditions != null)
                   {
                     ICondition result = conditionsBuilder.buildBlock(type, names);
-                    conditions.addCondition(result);
-                    InvalidCondition invalidCondition = result.getInvalidCondition();
-                    if(invalidCondition != null)
+                    if(result != null)
                       {
-                        if(treasureErrorsManager != null)
+                        conditions.addCondition(result);
+                        IInvalidCondition invalidCondition = result.getInvalidCondition();
+                        if(invalidCondition instanceof ListInvalidCondition)
                           {
-                            String identifier = section.getCurrentPath() + "." + inputNames;
-                            treasureErrorsManager.add(identifier, invalidCondition.getInvalidValues(), invalidCondition.getErrorMessage());
+                            ListInvalidCondition listInvalidCondition = (ListInvalidCondition) invalidCondition;
+                            if(treasureErrorsManager != null)
+                              {
+                                String identifier = section.getCurrentPath() + "." + inputNames;
+                                treasureErrorsManager.add(identifier, listInvalidCondition.getInvalidValues(), invalidCondition.getErrorMessage());
+                              }
+                            return false;
                           }
-                        return false;
+                        return true;
                       }
-                    return true;
                   }
               }
           }
       }
     return true;
+  }
+
+  private boolean _comparator(ConfigurationSection section, EnumConditionType condType)
+  {
+    if(section != null)
+      {
+        if(condType != null && isComparator(condType))
+          {
+            String inputName  = "input";
+            String outputName = "output";
+            String input      = section.getString(inputName, null);
+            String output     = section.getString(outputName, null);
+            if(input != null && output != null)
+              {
+                if(conditions != null)
+                  {
+                    ICondition result = conditionsBuilder.buildComparator(condType, input, output);
+                    if(result != null)
+                      {
+                        conditions.addCondition(result);
+                        return true;
+                      }
+                  }
+              }
+          }
+      }
+    return true;
+  }
+
+  private boolean _numberComparator(ConfigurationSection section, EnumConditionType condType)
+  {
+    if(section != null)
+      {
+        if(condType != null && isNumberComparator(condType))
+          {
+            String inputName  = "input";
+            String outputName = "output";
+            String input      = section.getString(inputName, null);
+            String output     = section.getString(outputName, null);
+            if(input != null && output != null)
+              {
+                if(conditions != null)
+                  {
+                    ICondition result = conditionsBuilder.buildComparator(condType, input, output);
+                    if(result != null)
+                      {
+                        IInvalidCondition invalidCondition = result.getInvalidCondition();
+                        if(invalidCondition instanceof ComparatorInvalidCondition)
+                          {
+                            ComparatorInvalidCondition listInvalidCondition = (ComparatorInvalidCondition) invalidCondition;
+                            if(treasureErrorsManager != null)
+                              {
+                                String inputError  = listInvalidCondition.getInvalidInput();
+                                String outputError = listInvalidCondition.getInvalidOutput();
+                                String identifier  = section.getCurrentPath();
+                                if(inputError != null)
+                                  {
+                                    treasureErrorsManager.add(identifier, String.format("%s", listInvalidCondition.getInvalidInput()),
+                                                              listInvalidCondition.getErrorMessage());
+                                  }
+                                if(outputError != null)
+                                  {
+                                    treasureErrorsManager.add(identifier, String.format("%s", listInvalidCondition.getInvalidOutput()),
+                                                              listInvalidCondition.getOutputErrorMessage());
+                                  }
+                              }
+                            return false;
+                          }
+                        conditions.addCondition(result);
+                        return true;
+                      }
+                  }
+              }
+          }
+      }
+    return true;
+  }
+
+  /**
+   * Verificadores
+   */
+  private boolean isComparator(EnumConditionType condType)
+  {
+    switch(condType)
+      {
+        case CONTAINS:
+        case EQUALS:
+        case EQUALS_IGNORE_CASE:
+        case NOT_CONTAINS:
+        case NOT_EQUALS:
+        case NOT_EQUALS_IGNORE_CASE:
+          return true;
+        default:
+          return false;
+      }
+  }
+
+  private boolean isNumberComparator(EnumConditionType condType)
+  {
+    switch(condType)
+      {
+        case NUMBER_EQUALS:
+        case NUMBER_NOT_EQUALS:
+        case NUMBER_GREATER:
+        case NUMBER_GREATER_OR_EQUALS:
+        case NUMBER_LESS:
+        case NUMBER_LESS_OR_EQUALS:
+          return true;
+        default:
+          return false;
+      }
   }
 
   /**
@@ -198,7 +333,21 @@ public class ConditionsLoader
     return EnumAccessType.WHITELIST;
   }
 
-  private List<String> getNames(ConfigurationSection conditionSection, String inputNames)
+  private String getText(ConfigurationSection conditionSection, String inputName)
+  {
+    if(conditionSection.contains(inputName))
+      {
+        String value = conditionSection.getString(inputName);
+        if(value != null)
+          {
+            value = value.trim();
+          }
+        return value;
+      }
+    return null;
+  }
+
+  private List<String> getTexts(ConfigurationSection conditionSection, String inputNames)
   {
     if(conditionSection.contains(inputNames))
       {
