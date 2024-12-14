@@ -82,7 +82,6 @@ public class TreasureProcessor implements ITreasureProcessor
    */
   public boolean process(@NotNull TreasureContext context)
   {
-    context.removerDepois(1);
     return _treasureProcess(context);
   }
 

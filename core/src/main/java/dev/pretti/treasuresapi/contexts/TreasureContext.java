@@ -9,8 +9,6 @@ public class TreasureContext
   private final Player   player;
   private final Location eventLocation;
 
-  private int removerDepois = 0;
-
   // Rewards contexts
   private final RewardContext rewardContext = new RewardContext();
 
@@ -40,15 +38,5 @@ public class TreasureContext
   public RewardContext getRewardContext()
   {
     return rewardContext;
-  }
-
-  public void removerDepois(int count)
-  {
-    removerDepois += count;
-  }
-
-  public int getRemoverDepois()
-  {
-    return removerDepois;
   }
 }

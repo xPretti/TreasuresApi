@@ -42,7 +42,6 @@ public class TreasuresProcessors
             count++;
           }
       }
-    Bukkit.getLogger().info(" Processados " + count + " tesouros" + " total de tesouros que tentaram processar: " + context.getRemoverDepois());
     return count > 0;
   }
 
