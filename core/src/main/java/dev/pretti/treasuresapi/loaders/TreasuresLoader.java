@@ -1,7 +1,7 @@
 package dev.pretti.treasuresapi.loaders;
 
 import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
-import dev.pretti.treasuresapi.datatypes.commands.CommandType;
+import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
 import dev.pretti.treasuresapi.dynamics.DoubleDynamic;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;

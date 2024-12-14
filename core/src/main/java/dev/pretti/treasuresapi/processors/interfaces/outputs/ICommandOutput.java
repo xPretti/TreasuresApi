@@ -2,6 +2,7 @@ package dev.pretti.treasuresapi.processors.interfaces.outputs;
 
 import dev.pretti.treasuresapi.datatypes.commands.*;
 import dev.pretti.treasuresapi.contexts.TreasureContext;
+import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
 import org.jetbrains.annotations.NotNull;
 
 public interface ICommandOutput
@@ -15,4 +16,6 @@ public interface ICommandOutput
   boolean process(@NotNull TreasureContext context, TextCommandType command);
 
   boolean process(@NotNull TreasureContext context, SoundCommandType command);
+
+  boolean process(@NotNull TreasureContext context, EffectCommandType command);
 }

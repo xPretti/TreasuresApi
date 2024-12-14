@@ -1,20 +1,21 @@
 package dev.pretti.treasuresapi.datatypes.commands;
 
-import dev.pretti.treasuresapi.enums.EnumParseType;
+import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
+import dev.pretti.treasuresapi.enums.EnumCommandType;
 
 public class TitleCommandType extends CommandType
 {
   private String  title;
   private String  subtitle;
-  private Integer fadeInTicks;
-  private Integer stayTicks;
-  private Integer fadeOutTicks;
+  private int fadeInTicks;
+  private int stayTicks;
+  private int fadeOutTicks;
 
   /**
    * Construtor da classe
    */
-  public TitleCommandType(EnumParseType type, String title, String subtitle, Integer fadeInTicks, Integer stayTicks,
-                          Integer fadeOutTicks)
+  public TitleCommandType(EnumCommandType type, String title, String subtitle, int fadeInTicks, int stayTicks,
+                          int fadeOutTicks)
   {
     super(type);
 
@@ -48,32 +49,32 @@ public class TitleCommandType extends CommandType
     this.subtitle = subtitle;
   }
 
-  public Integer getFadeInTicks()
+  public int getFadeInTicks()
   {
     return fadeInTicks;
   }
 
-  public void setFadeInTicks(Integer fadeInTicks)
+  public void setFadeInTicks(int fadeInTicks)
   {
     this.fadeInTicks = fadeInTicks;
   }
 
-  public Integer getStayTicks()
+  public int getStayTicks()
   {
     return stayTicks;
   }
 
-  public void setStayTicks(Integer stayTicks)
+  public void setStayTicks(int stayTicks)
   {
     this.stayTicks = stayTicks;
   }
 
-  public Integer getFadeOutTicks()
+  public int getFadeOutTicks()
   {
     return fadeOutTicks;
   }
 
-  public void setFadeOutTicks(Integer fadeOutTicks)
+  public void setFadeOutTicks(int fadeOutTicks)
   {
     this.fadeOutTicks = fadeOutTicks;
   }

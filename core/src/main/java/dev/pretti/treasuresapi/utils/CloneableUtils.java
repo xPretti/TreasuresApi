@@ -1,12 +1,15 @@
 package dev.pretti.treasuresapi.utils;
 
 import dev.pretti.treasuresapi.datatypes.commands.*;
+import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
+import org.jetbrains.annotations.Nullable;
 
 public class CloneableUtils
 {
   /**
    * Métodos de clonagem de classes
    */
+  @Nullable
   public static CommandType clone(CommandType source)
   {
     if(source instanceof RangeTextCommandType)
@@ -29,6 +32,11 @@ public class CloneableUtils
         SoundCommandType type = (SoundCommandType) source;
         return new SoundCommandType(type.getType(), type.getSound(), type.getVolume(), type.getPitch());
       }
-    return new CommandType(source.getType());
+    else if(source instanceof EffectCommandType)
+      {
+        EffectCommandType type = (EffectCommandType) source;
+        return new EffectCommandType(type.getActionType(), type.getEffectType(), type.getDuration(), type.getLevel());
+      }
+    return null;
   }
 }

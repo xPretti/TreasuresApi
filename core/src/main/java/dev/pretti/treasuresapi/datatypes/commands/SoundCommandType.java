@@ -1,6 +1,7 @@
 package dev.pretti.treasuresapi.datatypes.commands;
 
-import dev.pretti.treasuresapi.enums.EnumParseType;
+import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
+import dev.pretti.treasuresapi.enums.EnumCommandType;
 import org.bukkit.Sound;
 
 public class SoundCommandType extends CommandType
@@ -12,7 +13,7 @@ public class SoundCommandType extends CommandType
   /**
    * Construtor da classe
    */
-  public SoundCommandType(EnumParseType type, Sound sound, float volume, float pitch)
+  public SoundCommandType(EnumCommandType type, Sound sound, float volume, float pitch)
   {
     super(type);
     this.sound  = sound;

@@ -1,6 +1,6 @@
 package dev.pretti.treasuresapi.datatypes.commands;
 
-import dev.pretti.treasuresapi.enums.EnumParseType;
+import dev.pretti.treasuresapi.enums.EnumCommandType;
 
 public class RangeTextCommandType extends TextCommandType
 {
@@ -9,7 +9,7 @@ public class RangeTextCommandType extends TextCommandType
   /**
    * Construtor da classe
    */
-  public RangeTextCommandType(EnumParseType type, double range, String text)
+  public RangeTextCommandType(EnumCommandType type, double range, String text)
   {
     super(type, text);
     this.range = range;

@@ -1,7 +1,7 @@
 package dev.pretti.treasuresapi.rewards.types;
 
 
-import dev.pretti.treasuresapi.datatypes.commands.CommandType;
+import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
 import dev.pretti.treasuresapi.enums.EnumRewardType;
 
 import java.util.ArrayList;

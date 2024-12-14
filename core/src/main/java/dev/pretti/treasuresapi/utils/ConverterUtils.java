@@ -3,13 +3,16 @@ package dev.pretti.treasuresapi.utils;
 import dev.pretti.treasuresapi.datatypes.EnchantType;
 import dev.pretti.treasuresapi.datatypes.ItemType;
 import dev.pretti.treasuresapi.datatypes.commands.*;
+import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
 import dev.pretti.treasuresapi.dynamics.DoubleDynamic;
 import dev.pretti.treasuresapi.dynamics.Dynamic;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
-import dev.pretti.treasuresapi.enums.EnumParseType;
+import dev.pretti.treasuresapi.enums.EnumCommandType;
+import dev.pretti.treasuresapi.enums.EnumEffectActionType;
 import dev.pretti.treasuresapi.rewards.types.ItemReward;
 import org.bukkit.Sound;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -139,23 +142,26 @@ public class ConverterUtils
         String type   = text.substring(startIndex, endIndex);
         String action = text.substring(endIndex + 1).trim();
         type = type.replace("[", "").replace("]", "");
-        EnumParseType commandType = EnumParseType.getFromString(type);
+        EnumCommandType commandType = EnumCommandType.getFromString(type);
         return convertToCommandType(commandType, action);
       }
     return null;
   }
 
   @Nullable
-  private static CommandType convertToCommandType(EnumParseType type, String text)
+  private static CommandType convertToCommandType(EnumCommandType type, String text)
   {
-    CommandType result = null;
+    CommandType result;
     if((result = convertToTextCommandType(type, text)) == null)
       {
         if((result = convertToRangeTextCommandType(type, text)) == null)
           {
             if((result = convertToSoundCommandType(type, text)) == null)
               {
-                result = convertToTitleCommandType(type, text);
+                if((result = convertToTitleCommandType(type, text)) == null)
+                  {
+                    result = convertToEffectCommandType(type, text);
+                  }
               }
           }
       }
@@ -163,10 +169,10 @@ public class ConverterUtils
   }
 
   @Nullable
-  private static CommandType convertToTextCommandType(EnumParseType type, String text)
+  private static CommandType convertToTextCommandType(EnumCommandType type, String text)
   {
-    if(type == EnumParseType.CONSOLE || type == EnumParseType.PLAYER || type == EnumParseType.MESSAGE || type == EnumParseType.BROADCAST || type == EnumParseType.ACTIONBAR ||
-       type == EnumParseType.BROADCAST_ACTIONBAR)
+    if(type == EnumCommandType.CONSOLE || type == EnumCommandType.PLAYER || type == EnumCommandType.MESSAGE || type == EnumCommandType.BROADCAST || type == EnumCommandType.ACTIONBAR ||
+       type == EnumCommandType.BROADCAST_ACTIONBAR)
       {
         return new TextCommandType(type, text);
       }
@@ -174,9 +180,9 @@ public class ConverterUtils
   }
 
   @Nullable
-  private static CommandType convertToRangeTextCommandType(EnumParseType type, String text)
+  private static CommandType convertToRangeTextCommandType(EnumCommandType type, String text)
   {
-    if(type == EnumParseType.RANGE_MESSAGE)
+    if(type == EnumCommandType.RANGE_MESSAGE)
       {
         int firstIndex = text.indexOf(" ");
         if(firstIndex >= 0)
@@ -192,9 +198,9 @@ public class ConverterUtils
   }
 
   @Nullable
-  private static CommandType convertToSoundCommandType(EnumParseType type, String text)
+  private static CommandType convertToSoundCommandType(EnumCommandType type, String text)
   {
-    if(type == EnumParseType.SOUND || type == EnumParseType.WORLD_SOUND || type == EnumParseType.EVENT_SOUND || type == EnumParseType.WORLD_EVENT_SOUND)
+    if(type == EnumCommandType.SOUND || type == EnumCommandType.WORLD_SOUND || type == EnumCommandType.EVENT_SOUND || type == EnumCommandType.WORLD_EVENT_SOUND)
       {
         Sound        sound  = DEFAULT_SOUND;
         float        volume = 1;
@@ -228,15 +234,15 @@ public class ConverterUtils
   }
 
   @Nullable
-  private static CommandType convertToTitleCommandType(EnumParseType type, String text)
+  private static CommandType convertToTitleCommandType(EnumCommandType type, String text)
   {
-    if(type == EnumParseType.TITLE || type == EnumParseType.BROADCAST_TITLE)
+    if(type == EnumCommandType.TITLE || type == EnumCommandType.BROADCAST_TITLE)
       {
         String       title        = "";
         String       subtitle     = "";
-        Integer      fadeInTicks  = 10;
-        Integer      stayTicks    = 30;
-        Integer      fadeOutTicks = 10;
+        int          fadeInTicks  = 10;
+        int          stayTicks    = 30;
+        int          fadeOutTicks = 10;
         List<String> params       = StringUtils.splitNoEmpty(text, " ", 4);
         if(params != null)
           {
@@ -244,15 +250,15 @@ public class ConverterUtils
               {
                 if(i == 0)
                   {
-                    fadeInTicks = Integer.valueOf(params.get(i));
+                    fadeInTicks = Integer.parseInt(params.get(i));
                   }
                 else if(i == 1)
                   {
-                    stayTicks = Integer.valueOf(params.get(i));
+                    stayTicks = Integer.parseInt(params.get(i));
                   }
                 else if(i == 2)
                   {
-                    fadeOutTicks = Integer.valueOf(params.get(i));
+                    fadeOutTicks = Integer.parseInt(params.get(i));
                   }
                 else
                   {
@@ -277,6 +283,41 @@ public class ConverterUtils
               }
           }
         return new TitleCommandType(type, title, subtitle, fadeInTicks, stayTicks, fadeOutTicks);
+      }
+    return null;
+  }
+
+  @Nullable
+  private static CommandType convertToEffectCommandType(EnumCommandType type, String text)
+  {
+    if(type == EnumCommandType.EFFECT)
+      {
+        EnumEffectActionType actionType = EnumEffectActionType.CLEAR;
+        PotionEffectType     effectType = null;
+        int                  duration   = 0;
+        int                  level      = 0;
+        List<String>         params     = StringUtils.splitNoEmpty(text, " ", 4);
+        if(params != null)
+          {
+            int size = params.size();
+            if(size > 0)
+              {
+                actionType = EnumEffectActionType.getFromString(params.get(0));
+                if(actionType.getMaxParams() > 0 && size > 1)
+                  {
+                    effectType = PotionEffectType.getByName(params.get(1));
+                    if(size > 2)
+                      {
+                        duration = Integer.parseInt(params.get(2)) * 20;
+                        if(size > 3)
+                          {
+                            level = Integer.parseInt(params.get(3)) - 1;
+                          }
+                      }
+                  }
+              }
+          }
+        return new EffectCommandType(actionType, effectType, duration, level);
       }
     return null;
   }
