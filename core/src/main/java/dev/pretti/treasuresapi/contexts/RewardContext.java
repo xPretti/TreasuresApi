@@ -1,4 +1,4 @@
-package dev.pretti.treasuresapi.processors.context;
+package dev.pretti.treasuresapi.contexts;
 
 import dev.pretti.treasuresapi.datatypes.ItemType;
 import org.jetbrains.annotations.Nullable;

@@ -3,7 +3,7 @@ package dev.pretti.treasuresapi.processors;
 import dev.pretti.treasuresapi.conditions.Conditions;
 import dev.pretti.treasuresapi.datatypes.ItemType;
 import dev.pretti.treasuresapi.datatypes.commands.CommandType;
-import dev.pretti.treasuresapi.processors.context.TreasureContext;
+import dev.pretti.treasuresapi.contexts.TreasureContext;
 import dev.pretti.treasuresapi.processors.interfaces.ITreasureProcessor;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.ICommandOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IItemOutput;
@@ -48,9 +48,10 @@ public class TreasureProcessor implements ITreasureProcessor
   }
 
   /**
-   * Retornos protegidos
+   * Retorna o tesouro
    */
-  protected Treasure getTreasure()
+  @Override
+  public Treasure getTreasure()
   {
     return treasure;
   }
@@ -81,6 +82,7 @@ public class TreasureProcessor implements ITreasureProcessor
    */
   public boolean process(@NotNull TreasureContext context)
   {
+    context.removerDepois(1);
     return _treasureProcess(context);
   }
 

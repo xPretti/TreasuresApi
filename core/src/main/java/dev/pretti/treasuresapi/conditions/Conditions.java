@@ -1,7 +1,8 @@
 package dev.pretti.treasuresapi.conditions;
 
 import dev.pretti.treasuresapi.conditions.interfaces.ICondition;
-import dev.pretti.treasuresapi.processors.context.TreasureContext;
+import dev.pretti.treasuresapi.contexts.TreasureContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,5 +36,13 @@ public class Conditions
         return false;
       }
     return conditions.add(condition);
+  }
+
+  /**
+   * Retorna a lista de condições
+   */
+  public @NotNull List<ICondition> getValues()
+  {
+    return conditions;
   }
 }

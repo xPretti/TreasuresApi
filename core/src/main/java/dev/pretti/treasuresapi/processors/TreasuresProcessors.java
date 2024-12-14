@@ -1,9 +1,10 @@
 package dev.pretti.treasuresapi.processors;
 
-import dev.pretti.treasuresapi.processors.context.TreasureContext;
+import dev.pretti.treasuresapi.contexts.TreasureContext;
 import dev.pretti.treasuresapi.processors.interfaces.ITreasureBuilder;
 import dev.pretti.treasuresapi.processors.interfaces.ITreasureProcessor;
 import dev.pretti.treasuresapi.rewards.Treasure;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -11,6 +12,14 @@ import java.util.*;
 public class TreasuresProcessors
 {
   private final Map<String, ITreasureProcessor> treasures = new HashMap<>();
+
+  /**
+   * Retornos dos processadores
+   */
+  public Collection<ITreasureProcessor> getProcessors()
+  {
+    return treasures.values();
+  }
 
   /**
    * Métodos de processamento de tesouros
@@ -21,8 +30,7 @@ public class TreasuresProcessors
       {
         return false;
       }
-    boolean wasRewarded = false;
-    int     count       = 0;
+    int count = 0;
     for(ITreasureProcessor processor : treasures.values())
       {
         if(count >= limit)
@@ -31,11 +39,11 @@ public class TreasuresProcessors
           }
         if(processor.process(context))
           {
-            wasRewarded = true;
             count++;
           }
       }
-    return wasRewarded;
+    Bukkit.getLogger().info(" Processados " + count + " tesouros" + " total de tesouros que tentaram processar: " + context.getRemoverDepois());
+    return count > 0;
   }
 
   public boolean process(String treasureName, TreasureContext context)

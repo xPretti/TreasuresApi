@@ -215,9 +215,9 @@ set -- \
 #   set -- "${ARGS[@]}" "$@"
 #
 # but POSIX shell has neither arrays nor command substitution, so instead we
-# post-context each arg (as a line of input to sed) to backslash-escape any
+# post-contexts each arg (as a line of input to sed) to backslash-escape any
 # character that might be a shell metacharacter, then use eval to reverse
-# that context (while maintaining the separation between arguments), and wrap
+# that contexts (while maintaining the separation between arguments), and wrap
 # the whole thing up as a single "set" statement.
 #
 # This will of course break if any of these variables contains a newline or

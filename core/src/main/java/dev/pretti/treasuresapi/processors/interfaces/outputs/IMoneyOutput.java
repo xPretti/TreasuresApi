@@ -1,6 +1,6 @@
 package dev.pretti.treasuresapi.processors.interfaces.outputs;
 
-import dev.pretti.treasuresapi.processors.context.TreasureContext;
+import dev.pretti.treasuresapi.contexts.TreasureContext;
 import org.jetbrains.annotations.NotNull;
 
 public interface IMoneyOutput

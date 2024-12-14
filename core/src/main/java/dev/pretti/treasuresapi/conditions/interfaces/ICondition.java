@@ -1,6 +1,6 @@
 package dev.pretti.treasuresapi.conditions.interfaces;
 
-import dev.pretti.treasuresapi.processors.context.TreasureContext;
+import dev.pretti.treasuresapi.contexts.TreasureContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
