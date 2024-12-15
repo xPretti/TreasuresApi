@@ -7,6 +7,8 @@ public enum EnumConditionType
   WORLD,
   BIOME,
   BLOCK,
+  ITEM,
+  NOT_ITEM,
   CONTAINS,
   EQUALS,
   EQUALS_IGNORE_CASE,
@@ -56,6 +58,45 @@ public enum EnumConditionType
   {
     return typeName == null ? this.name() : typeName;
   }
+
+  public boolean isItem()
+  {
+    return this.equals(EnumConditionType.ITEM) || this.equals(EnumConditionType.NOT_ITEM);
+  }
+
+  public boolean isComparator()
+  {
+    switch(this)
+      {
+        case CONTAINS:
+        case EQUALS:
+        case EQUALS_IGNORE_CASE:
+        case NOT_CONTAINS:
+        case NOT_EQUALS:
+        case NOT_EQUALS_IGNORE_CASE:
+          return true;
+        default:
+          return false;
+      }
+  }
+
+  public boolean isNumberComparator()
+  {
+    switch(this)
+      {
+        case NUMBER_EQUALS:
+        case NUMBER_NOT_EQUALS:
+        case NUMBER_GREATER:
+        case NUMBER_GREATER_OR_EQUALS:
+        case NUMBER_LESS:
+        case NUMBER_LESS_OR_EQUALS:
+          return true;
+        default:
+          return false;
+      }
+  }
+
+
 
   public static EnumConditionType getFromString(String text)
   {

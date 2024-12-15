@@ -6,9 +6,12 @@ import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.conditions.interfaces.IInvalidCondition;
 import dev.pretti.treasuresapi.conditions.invalids.ComparatorInvalidCondition;
 import dev.pretti.treasuresapi.conditions.invalids.ListInvalidCondition;
+import dev.pretti.treasuresapi.datatypes.MaterialType;
 import dev.pretti.treasuresapi.enums.EnumAccessType;
 import dev.pretti.treasuresapi.enums.EnumConditionType;
 import dev.pretti.treasuresapi.errors.interfaces.ITreasureErrorLogger;
+import dev.pretti.treasuresapi.options.ItemConditionOptions;
+import dev.pretti.treasuresapi.utils.MaterialUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +53,7 @@ public class ConditionsLoader
                         sucess = _world(newSection, condType) && sucess;
                         sucess = _biome(newSection, condType) && sucess;
                         sucess = _block(newSection, condType) && sucess;
+                        sucess = _item(newSection, condType) && sucess;
                         sucess = _comparator(newSection, condType) && sucess;
                         sucess = _numberComparator(newSection, condType) && sucess;
                       }
@@ -168,11 +172,49 @@ public class ConditionsLoader
     return true;
   }
 
+  private boolean _item(ConfigurationSection section, EnumConditionType condType)
+  {
+    if(section != null)
+      {
+        if(condType != null && condType.isItem())
+          {
+            String materialName = section.getString("material", null);
+            if(materialName != null)
+              {
+                MaterialType         material = MaterialUtils.toMaterialType(materialName);
+                if(material == null)
+                  {
+                    if(treasureErrorsManager != null)
+                      {
+                        String identifier = section.getCurrentPath() + "." + "material";
+                        treasureErrorsManager.add(identifier, materialName, "Invalid material");
+                      }
+                    return false;
+                  }
+                int                  amount   = section.getInt("amount", 1);
+                String               name     = section.getString("name", null);
+                List<String>         lores    = section.getStringList("lores");
+                ItemConditionOptions options  = getItemConditionOptions(section.getConfigurationSection("options"));
+                if(conditions != null)
+                  {
+                    ICondition result = conditionsBuilder.buildItem(condType, material, amount, name, lores, options);
+                    if(result != null)
+                      {
+                        conditions.addCondition(result);
+                        return true;
+                      }
+                  }
+              }
+          }
+      }
+    return true;
+  }
+
   private boolean _comparator(ConfigurationSection section, EnumConditionType condType)
   {
     if(section != null)
       {
-        if(condType != null && isComparator(condType))
+        if(condType != null && condType.isComparator())
           {
             String inputName  = "input";
             String outputName = "output";
@@ -199,7 +241,7 @@ public class ConditionsLoader
   {
     if(section != null)
       {
-        if(condType != null && isNumberComparator(condType))
+        if(condType != null && condType.isNumberComparator())
           {
             String inputName  = "input";
             String outputName = "output";
@@ -245,43 +287,26 @@ public class ConditionsLoader
   }
 
   /**
-   * Verificadores
-   */
-  private boolean isComparator(EnumConditionType condType)
-  {
-    switch(condType)
-      {
-        case CONTAINS:
-        case EQUALS:
-        case EQUALS_IGNORE_CASE:
-        case NOT_CONTAINS:
-        case NOT_EQUALS:
-        case NOT_EQUALS_IGNORE_CASE:
-          return true;
-        default:
-          return false;
-      }
-  }
-
-  private boolean isNumberComparator(EnumConditionType condType)
-  {
-    switch(condType)
-      {
-        case NUMBER_EQUALS:
-        case NUMBER_NOT_EQUALS:
-        case NUMBER_GREATER:
-        case NUMBER_GREATER_OR_EQUALS:
-        case NUMBER_LESS:
-        case NUMBER_LESS_OR_EQUALS:
-          return true;
-        default:
-          return false;
-      }
-  }
-
-  /**
    * Retornos simplificados
    */
+  @NotNull
+  private ItemConditionOptions getItemConditionOptions(ConfigurationSection optionsSection)
+  {
+    if(optionsSection == null)
+      {
+        return new ItemConditionOptions();
+      }
+    boolean nameIgnoreCase  = optionsSection.getBoolean("name_ignorecase", false);
+    boolean loresIgnoreCase = optionsSection.getBoolean("lores_ignorecase", false);
+    boolean nameContains    = optionsSection.getBoolean("name_contains", false);
+    boolean loresContains   = optionsSection.getBoolean("lores_contains", false);
+    boolean inInventory     = optionsSection.getBoolean("in_inventory", false);
+    boolean inHotbar        = optionsSection.getBoolean("in_hotbar", false);
+    boolean inArmor         = optionsSection.getBoolean("in_armor", false);
+    return new ItemConditionOptions(nameIgnoreCase, loresIgnoreCase, nameContains, loresContains, inInventory, inHotbar, inArmor);
+
+  }
+
   @Nullable
   private EnumConditionType getConditionType(ConfigurationSection conditionSection)
   {
