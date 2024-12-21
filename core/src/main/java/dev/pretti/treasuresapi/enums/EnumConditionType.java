@@ -9,6 +9,7 @@ public enum EnumConditionType
   BLOCK,
   ITEM,
   NOT_ITEM,
+  PLACED,
   CONTAINS,
   EQUALS,
   EQUALS_IGNORE_CASE,

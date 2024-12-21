@@ -53,6 +53,7 @@ public class ConditionsLoader
                         sucess = _world(newSection, condType) && sucess;
                         sucess = _biome(newSection, condType) && sucess;
                         sucess = _block(newSection, condType) && sucess;
+                        sucess = _placed(newSection, condType) && sucess;
                         sucess = _item(newSection, condType) && sucess;
                         sucess = _comparator(newSection, condType) && sucess;
                         sucess = _numberComparator(newSection, condType) && sucess;
@@ -181,7 +182,7 @@ public class ConditionsLoader
             String materialName = section.getString("material", null);
             if(materialName != null)
               {
-                MaterialType         material = MaterialUtils.toMaterialType(materialName);
+                MaterialType material = MaterialUtils.toMaterialType(materialName);
                 if(material == null)
                   {
                     if(treasureErrorsManager != null)
@@ -191,10 +192,10 @@ public class ConditionsLoader
                       }
                     return false;
                   }
-                int                  amount   = section.getInt("amount", 1);
-                String               name     = section.getString("name", null);
-                List<String>         lores    = section.getStringList("lores");
-                ItemConditionOptions options  = getItemConditionOptions(section.getConfigurationSection("options"));
+                int                  amount  = section.getInt("amount", 1);
+                String               name    = section.getString("name", null);
+                List<String>         lores   = section.getStringList("lores");
+                ItemConditionOptions options = getItemConditionOptions(section.getConfigurationSection("options"));
                 if(conditions != null)
                   {
                     ICondition result = conditionsBuilder.buildItem(condType, material, amount, name, lores, options);
@@ -203,6 +204,27 @@ public class ConditionsLoader
                         conditions.addCondition(result);
                         return true;
                       }
+                  }
+              }
+          }
+      }
+    return true;
+  }
+
+  private boolean _placed(ConfigurationSection section, EnumConditionType condType)
+  {
+    if(section != null)
+      {
+        if(condType != null && condType.equals(EnumConditionType.PLACED))
+          {
+            boolean value = section.getBoolean("ignore", false);
+            if(conditions != null)
+              {
+                ICondition result = conditionsBuilder.buildPlaced(value);
+                if(result != null)
+                  {
+                    conditions.addCondition(result);
+                    return true;
                   }
               }
           }

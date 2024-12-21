@@ -21,4 +21,6 @@ public interface IConditionsBuilder
   IComparatorCondition buildComparator(@NotNull EnumConditionType condType, @NotNull String input, @NotNull String output);
 
   IItemCondition buildItem(@NotNull EnumConditionType condType, @NotNull MaterialType material, int amount, @Nullable String name, @Nullable List<String> lores, @NotNull ItemConditionOptions options);
+
+  IPlacedCondition buildPlaced(boolean ignore);
 }
