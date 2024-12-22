@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IItemCondition extends ICondition
 {
-  @NotNull
+  @Nullable
   MaterialType getMaterial();
 
   int getAmount();

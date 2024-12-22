@@ -179,31 +179,19 @@ public class ConditionsLoader
       {
         if(condType != null && condType.isItem())
           {
-            String materialName = section.getString("material", null);
-            if(materialName != null)
+            String               materialName = section.getString("material", null);
+            MaterialType         material     = materialName == null ? null : MaterialUtils.toMaterialType(materialName);
+            int                  amount       = section.getInt("amount", 1);
+            String               name         = section.getString("name", null);
+            List<String>         lores        = section.getStringList("lores");
+            ItemConditionOptions options      = getItemConditionOptions(section.getConfigurationSection("options"));
+            if(conditions != null)
               {
-                MaterialType material = MaterialUtils.toMaterialType(materialName);
-                if(material == null)
+                ICondition result = conditionsBuilder.buildItem(condType, material, amount, name, lores, options);
+                if(result != null)
                   {
-                    if(treasureErrorsManager != null)
-                      {
-                        String identifier = section.getCurrentPath() + "." + "material";
-                        treasureErrorsManager.add(identifier, materialName, "Invalid material");
-                      }
-                    return false;
-                  }
-                int                  amount  = section.getInt("amount", 1);
-                String               name    = section.getString("name", null);
-                List<String>         lores   = section.getStringList("lores");
-                ItemConditionOptions options = getItemConditionOptions(section.getConfigurationSection("options"));
-                if(conditions != null)
-                  {
-                    ICondition result = conditionsBuilder.buildItem(condType, material, amount, name, lores, options);
-                    if(result != null)
-                      {
-                        conditions.addCondition(result);
-                        return true;
-                      }
+                    conditions.addCondition(result);
+                    return true;
                   }
               }
           }
