@@ -45,7 +45,7 @@ public class TreasuresLoader
   private static final String _useLootingSection    = "use-looting";
   private static final String _useFortuneSection    = "use-fortune";
   private static final String _itemSection          = "item";
-  private static final String _typeSection          = "type";
+  private static final String _materialSection      = "material";
   private static final String _nameSection          = "name";
   private static final String _loresSection         = "lores";
   private static final String _amountSection        = "amount";
@@ -370,7 +370,7 @@ public class TreasuresLoader
 
   private boolean _itemLoaderType(ConfigurationSection itemSection, ItemReward itemReward)
   {
-    String   name     = _typeSection;
+    String   name     = _materialSection;
     Material material = Material.STONE;
     byte     data     = 0;
     if(itemSection.contains(name))
