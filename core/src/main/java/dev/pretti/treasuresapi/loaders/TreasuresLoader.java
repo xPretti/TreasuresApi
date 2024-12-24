@@ -2,6 +2,7 @@ package dev.pretti.treasuresapi.loaders;
 
 import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
 import dev.pretti.treasuresapi.datatypes.MetadataType;
+import dev.pretti.treasuresapi.datatypes.commands.InvalidCommandType;
 import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
 import dev.pretti.treasuresapi.dynamics.DoubleDynamic;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
@@ -307,7 +308,15 @@ public class TreasuresLoader
                 type = ConverterUtils.getCommandType(command);
                 if(type != null)
                   {
-                    commandReward.getCommands().add(type);
+                    if(type instanceof InvalidCommandType)
+                      {
+                        InvalidCommandType invalidCommandType = (InvalidCommandType) type;
+                        treasureErrorsManager.add(sectionName, invalidCommandType.getArguments(), invalidCommandType.getError());
+                      }
+                    else
+                      {
+                        commandReward.getCommands().add(type);
+                      }
                   }
                 else
                   {

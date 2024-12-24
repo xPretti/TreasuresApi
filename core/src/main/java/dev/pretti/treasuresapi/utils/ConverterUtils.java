@@ -216,7 +216,13 @@ public class ConverterUtils
               {
                 if(i == 0)
                   {
-                    sound = Sound.valueOf(params.get(i));
+                    try
+                      {
+                        sound = Sound.valueOf(params.get(i));
+                      } catch(Throwable ignored)
+                      {
+                        return new InvalidCommandType(text, "Invalid sound type");
+                      }
                   }
                 else if(i == 1)
                   {

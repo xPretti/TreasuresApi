@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 public enum EnumCommandType
 {
+  INVALID,
   CONSOLE,
   PLAYER,
   MESSAGE,
