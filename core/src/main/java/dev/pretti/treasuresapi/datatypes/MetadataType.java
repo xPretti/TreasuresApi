@@ -1,31 +1,27 @@
 package dev.pretti.treasuresapi.datatypes;
 
-import dev.pretti.treasuresapi.enums.EnumConditionType;
-
 public class MetadataType
 {
-  private final EnumConditionType type;
-  private final String            key;
-  private final String            value;
+  private String key;
+  private String value;
 
   /**
-  * Contrutor da classe
-  */
-  public MetadataType(EnumConditionType type, String key, String value)
+   * Contrutor da classe
+   */
+  public MetadataType()
   {
-    this.type  = type;
+    this("", "");
+  }
+
+  public MetadataType(String key, String value)
+  {
     this.key   = key;
     this.value = value;
   }
 
   /**
-  * Retornos
-  */
-  public EnumConditionType getType()
-  {
-    return type;
-  }
-
+   * Retornos
+   */
   public String getKey()
   {
     return key;
@@ -34,5 +30,15 @@ public class MetadataType
   public String getValue()
   {
     return value;
+  }
+
+  public void setValue(String value)
+  {
+    this.value = value;
+  }
+
+  public void setKey(String key)
+  {
+    this.key = key;
   }
 }

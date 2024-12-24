@@ -41,6 +41,10 @@ public class ConverterUtils
           }
         item.setEnchants(getEnchantTypes(itemReward.getEnchant()));
         item.setFlags(itemReward.getFlags());
+        if(itemReward.getMetadata() != null)
+          {
+            item.setMetadata(new ArrayList<>(itemReward.getMetadata()));
+          }
         return item;
       }
     return null;

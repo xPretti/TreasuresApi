@@ -7,7 +7,7 @@ import dev.pretti.treasuresapi.conditions.interfaces.IInvalidCondition;
 import dev.pretti.treasuresapi.conditions.invalids.ComparatorInvalidCondition;
 import dev.pretti.treasuresapi.conditions.invalids.ListInvalidCondition;
 import dev.pretti.treasuresapi.datatypes.MaterialType;
-import dev.pretti.treasuresapi.datatypes.MetadataType;
+import dev.pretti.treasuresapi.datatypes.MetadataConditionType;
 import dev.pretti.treasuresapi.enums.EnumAccessType;
 import dev.pretti.treasuresapi.enums.EnumConditionType;
 import dev.pretti.treasuresapi.errors.interfaces.ITreasureErrorLogger;
@@ -186,8 +186,8 @@ public class ConditionsLoader
             int                  amount       = section.getInt("amount", 1);
             String               name         = section.getString("name", null);
             List<String>         lores        = section.getStringList("lores");
-            ItemConditionOptions options      = getItemConditionOptions(section.getConfigurationSection("options"));
-            List<MetadataType>   metadatas    = getMetadatas(section.getConfigurationSection("metadatas"));
+            ItemConditionOptions        options   = getItemConditionOptions(section.getConfigurationSection("options"));
+            List<MetadataConditionType> metadatas = getMetadatas(section.getConfigurationSection("metadatas"));
             if(conditions != null)
               {
                 ICondition result = conditionsBuilder.buildItem(condType, material, amount, name, lores, options, metadatas);
@@ -321,13 +321,13 @@ public class ConditionsLoader
   }
 
   @Nullable
-  private List<MetadataType> getMetadatas(ConfigurationSection metadatasSection)
+  private List<MetadataConditionType> getMetadatas(ConfigurationSection metadatasSection)
   {
     if(metadatasSection == null)
       {
         return null;
       }
-    List<MetadataType> metadatas = new ArrayList<>();
+    List<MetadataConditionType> metadatas = new ArrayList<>();
     for(String key : metadatasSection.getKeys(false))
       {
         ConfigurationSection subSection = metadatasSection.getConfigurationSection(key);
@@ -343,7 +343,7 @@ public class ConditionsLoader
               }
             if(conditionType != null && input != null && value != null)
               {
-                metadatas.add(new MetadataType(conditionType, input, value));
+                metadatas.add(new MetadataConditionType(conditionType, input, value));
               }
             else if(treasureErrorsManager != null)
               {

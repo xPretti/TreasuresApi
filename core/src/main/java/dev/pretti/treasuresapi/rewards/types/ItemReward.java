@@ -1,5 +1,6 @@
 package dev.pretti.treasuresapi.rewards.types;
 
+import dev.pretti.treasuresapi.datatypes.MetadataType;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
 import dev.pretti.treasuresapi.enums.EnumRewardType;
@@ -18,6 +19,7 @@ public class ItemReward extends Reward
   private IntDynamic           amount;
   private List<EnchantDynamic> enchant;
   private Set<ItemFlag>        flags;
+  private List<MetadataType>   metadata;
 
   /**
    * Construtores da classe
@@ -31,7 +33,7 @@ public class ItemReward extends Reward
   }
 
   public ItemReward(Material material, Byte data, String name, List<String> lores, IntDynamic amount,
-                    List<EnchantDynamic> enchantment, Set<ItemFlag> flags)
+                    List<EnchantDynamic> enchantment, Set<ItemFlag> flags, List<MetadataType> metadata)
   {
     super(EnumRewardType.ITEM);
 
@@ -42,6 +44,7 @@ public class ItemReward extends Reward
     this.amount   = amount;
     this.enchant  = enchantment;
     this.flags    = flags;
+    this.metadata = metadata;
   }
 
   /**
@@ -111,5 +114,15 @@ public class ItemReward extends Reward
   public void setFlags(Set<ItemFlag> flags)
   {
     this.flags = flags;
+  }
+
+  public List<MetadataType> getMetadata()
+  {
+    return metadata;
+  }
+
+  public void setMetadata(List<MetadataType> metadata)
+  {
+    this.metadata = metadata;
   }
 }

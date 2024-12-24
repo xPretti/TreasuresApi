@@ -1,6 +1,7 @@
 package dev.pretti.treasuresapi.loaders;
 
 import dev.pretti.treasuresapi.conditions.interfaces.IConditionsBuilder;
+import dev.pretti.treasuresapi.datatypes.MetadataType;
 import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
 import dev.pretti.treasuresapi.dynamics.DoubleDynamic;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
@@ -55,6 +56,7 @@ public class TreasuresLoader
   private static final String _moneySection         = "money";
   private static final String _commandsSection      = "commands";
   private static final String _flagsSection         = "flags";
+  private static final String _metadatasSection     = "metadatas";
 
   private final IConditionsBuilder conditionsBuilder;
 
@@ -363,6 +365,7 @@ public class TreasuresLoader
         _itemLoaderAmount(itemSection, itemReward);
         _itemLoaderEnchant(itemSection, itemReward);
         _itemLoaderFlags(itemSection, itemReward);
+        _itemLoaderMetas(itemSection, itemReward);
         return created ? itemReward : null;
       }
     return null;
@@ -506,6 +509,48 @@ public class TreasuresLoader
                 return;
               }
             itemReward.setFlags(flags);
+          }
+      }
+  }
+
+  private void _itemLoaderMetas(ConfigurationSection itemSection, ItemReward itemReward)
+  {
+    String name = _metadatasSection;
+    if(itemSection.contains(name))
+      {
+        ConfigurationSection metadatasSection = itemSection.getConfigurationSection(name);
+        if(metadatasSection != null)
+          {
+            List<MetadataType> metadatas = new ArrayList<>();
+            for(String key : metadatasSection.getKeys(false))
+              {
+                ConfigurationSection subMetadatasSection = metadatasSection.getConfigurationSection(key);
+                if(subMetadatasSection != null)
+                  {
+                    String keyValue = subMetadatasSection.getString("key", null);
+                    String value    = subMetadatasSection.getString("value", null);
+                    if(keyValue != null && value != null)
+                      {
+                        metadatas.add(new MetadataType(keyValue.trim(), value.trim()));
+                      }
+                    else
+                      {
+                        String identifier = subMetadatasSection.getCurrentPath();
+                        if(keyValue == null)
+                          {
+                            treasureErrorsManager.add(identifier, "key", "Invalid metadata key");
+                          }
+                        if(value == null)
+                          {
+                            treasureErrorsManager.add(identifier, "value", "Invalid metadata value");
+                          }
+                      }
+                  }
+              }
+            if(!metadatas.isEmpty())
+              {
+                itemReward.setMetadata(metadatas);
+              }
           }
       }
   }

@@ -8,13 +8,14 @@ import java.util.Set;
 
 public class ItemType
 {
-  private Material          type;
-  private Byte              data;
-  private int               amount;
-  private String            itemName;
-  private List<String>      lores;
-  private List<EnchantType> enchants;
-  private Set<ItemFlag>     flags;
+  private Material           type;
+  private Byte               data;
+  private int                amount;
+  private String             itemName;
+  private List<String>       lores;
+  private List<EnchantType>  enchants;
+  private Set<ItemFlag>      flags;
+  private List<MetadataType> metadata;
 
   /**
    * Construtor da classe
@@ -27,7 +28,7 @@ public class ItemType
   }
 
   public ItemType(Material type, Byte data, int amount, String itemName, List<String> lores,
-                  List<EnchantType> enchants, Set<ItemFlag> flags)
+                  List<EnchantType> enchants, Set<ItemFlag> flags, List<MetadataType> metadata)
   {
     this.type     = type;
     this.data     = data;
@@ -36,6 +37,7 @@ public class ItemType
     this.lores    = lores;
     this.enchants = enchants;
     this.flags    = flags;
+    this.metadata = metadata;
   }
 
   /**
@@ -109,5 +111,15 @@ public class ItemType
   public void setFlags(Set<ItemFlag> flags)
   {
     this.flags = flags;
+  }
+
+  public List<MetadataType> getMetadata()
+  {
+    return metadata;
+  }
+
+  public void setMetadata(List<MetadataType> metadata)
+  {
+    this.metadata = metadata;
   }
 }
