@@ -7,6 +7,7 @@ import dev.pretti.treasuresapi.conditions.interfaces.IInvalidCondition;
 import dev.pretti.treasuresapi.conditions.invalids.ComparatorInvalidCondition;
 import dev.pretti.treasuresapi.conditions.invalids.ListInvalidCondition;
 import dev.pretti.treasuresapi.datatypes.MaterialType;
+import dev.pretti.treasuresapi.datatypes.MetadataType;
 import dev.pretti.treasuresapi.enums.EnumAccessType;
 import dev.pretti.treasuresapi.enums.EnumConditionType;
 import dev.pretti.treasuresapi.errors.interfaces.ITreasureErrorLogger;
@@ -16,6 +17,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConditionsLoader
@@ -185,9 +187,10 @@ public class ConditionsLoader
             String               name         = section.getString("name", null);
             List<String>         lores        = section.getStringList("lores");
             ItemConditionOptions options      = getItemConditionOptions(section.getConfigurationSection("options"));
+            List<MetadataType>   metadatas    = getMetadatas(section.getConfigurationSection("metadatas"));
             if(conditions != null)
               {
-                ICondition result = conditionsBuilder.buildItem(condType, material, amount, name, lores, options);
+                ICondition result = conditionsBuilder.buildItem(condType, material, amount, name, lores, options, metadatas);
                 if(result != null)
                   {
                     conditions.addCondition(result);
@@ -315,6 +318,56 @@ public class ConditionsLoader
     boolean inArmor         = optionsSection.getBoolean("in_armor", false);
     return new ItemConditionOptions(nameIgnoreCase, loresIgnoreCase, nameContains, loresContains, inInventory, inHotbar, inArmor);
 
+  }
+
+  @Nullable
+  private List<MetadataType> getMetadatas(ConfigurationSection metadatasSection)
+  {
+    if(metadatasSection == null)
+      {
+        return null;
+      }
+    List<MetadataType> metadatas = new ArrayList<>();
+    for(String key : metadatasSection.getKeys(false))
+      {
+        ConfigurationSection subSection = metadatasSection.getConfigurationSection(key);
+        if(subSection != null)
+          {
+            String            name          = subSection.getString("type", null);
+            String            input         = subSection.getString("key", null);
+            String            value         = subSection.getString("value", null);
+            EnumConditionType conditionType = null;
+            if(name != null)
+              {
+                conditionType = EnumConditionType.getFromString(name);
+              }
+            if(conditionType != null && input != null && value != null)
+              {
+                metadatas.add(new MetadataType(conditionType, input, value));
+              }
+            else if(treasureErrorsManager != null)
+              {
+                String identifier = metadatasSection.getCurrentPath() + "." + key;
+                if(conditionType != null)
+                  {
+                    treasureErrorsManager.add(identifier, name, "Invalid metadata type");
+                  }
+                if(input != null)
+                  {
+                    treasureErrorsManager.add(identifier, input, "Invalid metadata key");
+                  }
+                if(value != null)
+                  {
+                    treasureErrorsManager.add(identifier, value, "Invalid metadata value");
+                  }
+              }
+          }
+      }
+    if(metadatas.isEmpty())
+      {
+        return null;
+      }
+    return metadatas;
   }
 
   @Nullable
