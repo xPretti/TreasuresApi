@@ -208,7 +208,7 @@ public class ConditionsLoader
       {
         if(condType != null && condType.equals(EnumConditionType.PLACED))
           {
-            boolean value = section.getBoolean("ignore", false);
+            boolean value = section.getBoolean("ignore", true);
             if(conditions != null)
               {
                 ICondition result = conditionsBuilder.buildPlaced(value);
@@ -316,7 +316,7 @@ public class ConditionsLoader
     boolean inInventory     = optionsSection.getBoolean("in_inventory", false);
     boolean inHotbar        = optionsSection.getBoolean("in_hotbar", false);
     boolean inArmor         = optionsSection.getBoolean("in_armor", false);
-    boolean inHand          = optionsSection.getBoolean("in_hand", false);
+    boolean inHand          = optionsSection.getBoolean("in_hand", true);
     boolean inOffHand       = optionsSection.getBoolean("in_offhand", false);
     return new ItemConditionOptions(nameIgnoreCase, loresIgnoreCase, nameContains, loresContains, inInventory, inHotbar, inArmor, inHand, inOffHand);
 

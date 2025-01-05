@@ -13,14 +13,15 @@ public class ItemConditionOptions
   private boolean inOffHand;
 
   /**
-  * Contrutor da classe
-  */
+   * Contrutor da classe
+   */
   public ItemConditionOptions()
   {
-    this(false, false, false, false, false, false, false, false, false);
+    this(false, false, false, false, false, false, false, true, false);
   }
 
-  public ItemConditionOptions(boolean nameIgnoreCase, boolean loresIgnoreCase, boolean nameContains, boolean loresContains, boolean inInventory, boolean inHotbar, boolean inArmor, boolean inHand, boolean inOffHand)
+  public ItemConditionOptions(boolean nameIgnoreCase, boolean loresIgnoreCase, boolean nameContains, boolean loresContains, boolean inInventory, boolean inHotbar, boolean inArmor, boolean inHand,
+                              boolean inOffHand)
   {
     this.nameIgnoreCase  = nameIgnoreCase;
     this.loresIgnoreCase = loresIgnoreCase;
