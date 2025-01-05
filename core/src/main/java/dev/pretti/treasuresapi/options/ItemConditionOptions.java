@@ -9,16 +9,18 @@ public class ItemConditionOptions
   private boolean inInventory;
   private boolean inHotbar;
   private boolean inArmor;
+  private boolean inHand;
+  private boolean inOffHand;
 
   /**
   * Contrutor da classe
   */
   public ItemConditionOptions()
   {
-    this(false, false, false, false, false, false, false);
+    this(false, false, false, false, false, false, false, false, false);
   }
 
-  public ItemConditionOptions(boolean nameIgnoreCase, boolean loresIgnoreCase, boolean nameContains, boolean loresContains, boolean inInventory, boolean inHotbar, boolean inArmor)
+  public ItemConditionOptions(boolean nameIgnoreCase, boolean loresIgnoreCase, boolean nameContains, boolean loresContains, boolean inInventory, boolean inHotbar, boolean inArmor, boolean inHand, boolean inOffHand)
   {
     this.nameIgnoreCase  = nameIgnoreCase;
     this.loresIgnoreCase = loresIgnoreCase;
@@ -27,6 +29,8 @@ public class ItemConditionOptions
     this.inInventory     = inInventory;
     this.inHotbar        = inHotbar;
     this.inArmor         = inArmor;
+    this.inHand          = inHand;
+    this.inOffHand       = inOffHand;
   }
 
   /**
@@ -100,5 +104,25 @@ public class ItemConditionOptions
   public void setInArmor(boolean inArmor)
   {
     this.inArmor = inArmor;
+  }
+
+  public boolean isInHand()
+  {
+    return inHand;
+  }
+
+  public void setInHand(boolean inHand)
+  {
+    this.inHand = inHand;
+  }
+
+  public boolean isInOffHand()
+  {
+    return inOffHand;
+  }
+
+  public void setInOffHand(boolean inOffHand)
+  {
+    this.inOffHand = inOffHand;
   }
 }

@@ -316,7 +316,9 @@ public class ConditionsLoader
     boolean inInventory     = optionsSection.getBoolean("in_inventory", false);
     boolean inHotbar        = optionsSection.getBoolean("in_hotbar", false);
     boolean inArmor         = optionsSection.getBoolean("in_armor", false);
-    return new ItemConditionOptions(nameIgnoreCase, loresIgnoreCase, nameContains, loresContains, inInventory, inHotbar, inArmor);
+    boolean inHand          = optionsSection.getBoolean("in_hand", false);
+    boolean inOffHand       = optionsSection.getBoolean("in_offhand", false);
+    return new ItemConditionOptions(nameIgnoreCase, loresIgnoreCase, nameContains, loresContains, inInventory, inHotbar, inArmor, inHand, inOffHand);
 
   }
 
