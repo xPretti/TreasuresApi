@@ -2,3 +2,4 @@ name: TreasuresApi
 version: 1.0
 main: dev.pretti.treasuresapi.TreasuresApi
 author: Pretti_
+api-version: 1.15

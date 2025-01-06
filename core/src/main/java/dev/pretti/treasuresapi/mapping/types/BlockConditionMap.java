@@ -8,6 +8,7 @@ import dev.pretti.treasuresapi.enums.EnumAccessType;
 import dev.pretti.treasuresapi.mapping.interfaces.IConditionMap;
 import dev.pretti.treasuresapi.processors.interfaces.ITreasureProcessor;
 import dev.pretti.treasuresapi.rewards.Treasure;
+import dev.pretti.treasuresapi.utils.BlockDataUtils;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 
@@ -90,7 +91,7 @@ public class BlockConditionMap<T extends IConditionMap> implements IConditionMap
       }
 
     Block   block  = context.getTreasureContext().getEventLocation().getBlock();
-    MaterialType materialType = new MaterialType(block.getType(), block.getData(), false);
+    MaterialType materialType = new MaterialType(block.getType(), (byte)BlockDataUtils.getData(block), false);
 
     if(whitelist.containsKey(materialType))
       {
