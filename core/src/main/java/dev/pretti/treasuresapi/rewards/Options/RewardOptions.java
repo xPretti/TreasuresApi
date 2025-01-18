@@ -1,22 +1,26 @@
 package dev.pretti.treasuresapi.rewards.Options;
 
+import dev.pretti.treasuresapi.enums.EnumVanillaDropsType;
+
 public class RewardOptions
 {
-  private final boolean useLooting;
-  private final boolean useFortune;
+  private boolean              useLooting;
+  private boolean              useFortune;
+  private EnumVanillaDropsType removeVanillaDrops;
 
   /**
    * Contrutor da classe
    */
   public RewardOptions()
   {
-    this(false, false);
+    this(false, false, EnumVanillaDropsType.IGNORE);
   }
 
-  public RewardOptions(boolean useLooting, boolean useFortune)
+  public RewardOptions(boolean useLooting, boolean useFortune, EnumVanillaDropsType removeVanillaDrops)
   {
-    this.useLooting = useLooting;
-    this.useFortune = useFortune;
+    this.useLooting         = useLooting;
+    this.useFortune         = useFortune;
+    this.removeVanillaDrops = removeVanillaDrops;
   }
 
   /**
@@ -32,4 +36,23 @@ public class RewardOptions
     return useFortune;
   }
 
+  public void setUseLooting(boolean useLooting)
+  {
+    this.useLooting = useLooting;
+  }
+
+  public void setUseFortune(boolean useFortune)
+  {
+    this.useFortune = useFortune;
+  }
+
+  public EnumVanillaDropsType getRemoveVanillaDrops()
+  {
+    return removeVanillaDrops;
+  }
+
+  public void setRemoveVanillaDrops(EnumVanillaDropsType removeVanillaDrops)
+  {
+    this.removeVanillaDrops = removeVanillaDrops;
+  }
 }

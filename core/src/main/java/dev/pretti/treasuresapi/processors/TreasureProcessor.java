@@ -1,9 +1,10 @@
 package dev.pretti.treasuresapi.processors;
 
 import dev.pretti.treasuresapi.conditions.Conditions;
+import dev.pretti.treasuresapi.contexts.TreasureContext;
 import dev.pretti.treasuresapi.datatypes.ItemType;
 import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
-import dev.pretti.treasuresapi.contexts.TreasureContext;
+import dev.pretti.treasuresapi.enums.EnumVanillaDropsType;
 import dev.pretti.treasuresapi.processors.interfaces.ITreasureProcessor;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.ICommandOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IItemOutput;
@@ -194,6 +195,14 @@ public class TreasureProcessor implements ITreasureProcessor
                                           }
                                       }
                                     wasRewarded = true;
+                                    EnumVanillaDropsType vanillaDropsType = rewards.getOptions().getRemoveVanillaDrops();
+                                    if(vanillaDropsType != EnumVanillaDropsType.IGNORE)
+                                      {
+                                        if(context.getRemoveVanillaDrops() != EnumVanillaDropsType.REMOVE)
+                                          {
+                                            context.setRemoveVanillaDrops(vanillaDropsType);
+                                          }
+                                      }
                                   }
                               }
                           }

@@ -7,6 +7,7 @@ import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
 import dev.pretti.treasuresapi.dynamics.DoubleDynamic;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
+import dev.pretti.treasuresapi.enums.EnumVanillaDropsType;
 import dev.pretti.treasuresapi.errors.TreasureErrorLogger;
 import dev.pretti.treasuresapi.errors.interfaces.ITreasureErrorLogger;
 import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
@@ -38,26 +39,27 @@ import java.util.Set;
 
 public class TreasuresLoader
 {
-  private static final String _treasureSection      = "sections";
-  private static final String _randomRewardsSection = "random";
-  private static final String _rewardsSection       = "rewards";
-  private static final String _chanceSection        = "chance";
-  private static final String _permissionSection    = "permission";
-  private static final String _limitSection         = "limit";
-  private static final String _useLootingSection    = "use-looting";
-  private static final String _useFortuneSection    = "use-fortune";
-  private static final String _itemSection          = "item";
-  private static final String _materialSection      = "material";
-  private static final String _nameSection          = "name";
-  private static final String _loresSection         = "lores";
-  private static final String _amountSection        = "amount";
-  private static final String _enchantsSection      = "enchants";
-  private static final String _expSection           = "exp";
-  private static final String _xpLevelSection       = "level";
-  private static final String _moneySection         = "money";
-  private static final String _commandsSection      = "commands";
-  private static final String _flagsSection         = "flags";
-  private static final String _metadatasSection     = "metadatas";
+  private static final String _treasureSection           = "sections";
+  private static final String _randomRewardsSection      = "random";
+  private static final String _rewardsSection            = "rewards";
+  private static final String _chanceSection             = "chance";
+  private static final String _permissionSection         = "permission";
+  private static final String _limitSection              = "limit";
+  private static final String _useLootingSection         = "use-looting";
+  private static final String _useFortuneSection         = "use-fortune";
+  private static final String _removeVanillaDropsSection = "remove-vanilla-drops";
+  private static final String _itemSection               = "item";
+  private static final String _materialSection           = "material";
+  private static final String _nameSection               = "name";
+  private static final String _loresSection              = "lores";
+  private static final String _amountSection             = "amount";
+  private static final String _enchantsSection           = "enchants";
+  private static final String _expSection                = "exp";
+  private static final String _xpLevelSection            = "level";
+  private static final String _moneySection              = "money";
+  private static final String _commandsSection           = "commands";
+  private static final String _flagsSection              = "flags";
+  private static final String _metadatasSection          = "metadatas";
 
   private final IConditionsBuilder conditionsBuilder;
 
@@ -277,8 +279,9 @@ public class TreasuresLoader
   {
     if(subRewardSection != null)
       {
-        boolean useLooting = false;
-        boolean useFortune = false;
+        boolean              useLooting       = false;
+        boolean              useFortune       = false;
+        EnumVanillaDropsType vanillaDropsType = EnumVanillaDropsType.IGNORE;
         if(subRewardSection.contains(_useLootingSection))
           {
             useLooting = subRewardSection.getBoolean(_useLootingSection);
@@ -287,7 +290,11 @@ public class TreasuresLoader
           {
             useFortune = subRewardSection.getBoolean(_useFortuneSection);
           }
-        return new RewardOptions(useLooting, useFortune);
+        if(subRewardSection.contains(_removeVanillaDropsSection))
+          {
+            vanillaDropsType = subRewardSection.getBoolean(_removeVanillaDropsSection, false) ? EnumVanillaDropsType.REMOVE : EnumVanillaDropsType.NOT_REMOVE;
+          }
+        return new RewardOptions(useLooting, useFortune, vanillaDropsType);
       }
     return new RewardOptions();
   }
