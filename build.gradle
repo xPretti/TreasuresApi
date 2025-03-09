@@ -8,7 +8,7 @@ plugins {
  * Propriedades
  */
 group = 'dev.pretti.treasuresapi'
-version = '1.0'
+version = '1.0.0'
 
 
 /*
