@@ -7,10 +7,11 @@ import dev.pretti.treasuresapi.datatypes.commands.base.CommandType;
 import dev.pretti.treasuresapi.dynamics.DoubleDynamic;
 import dev.pretti.treasuresapi.dynamics.EnchantDynamic;
 import dev.pretti.treasuresapi.dynamics.IntDynamic;
+import dev.pretti.treasuresapi.enums.EnumDeliveryType;
 import dev.pretti.treasuresapi.enums.EnumVanillaDropsType;
 import dev.pretti.treasuresapi.errors.TreasureErrorLogger;
 import dev.pretti.treasuresapi.errors.interfaces.ITreasureErrorLogger;
-import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
+import dev.pretti.treasuresapi.options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.Rewards;
 import dev.pretti.treasuresapi.rewards.RewardsGroup;
 import dev.pretti.treasuresapi.rewards.Treasure;
@@ -48,6 +49,7 @@ public class TreasuresLoader
   private static final String _useLootingSection         = "use-looting";
   private static final String _useFortuneSection         = "use-fortune";
   private static final String _removeVanillaDropsSection = "remove-vanilla-drops";
+  private static final String _deliverySection           = "delivery";
   private static final String _itemSection               = "item";
   private static final String _materialSection           = "material";
   private static final String _nameSection               = "name";
@@ -161,6 +163,18 @@ public class TreasuresLoader
           {
             treasure.setLimit(currentSection.getInt(_limitSection));
           }
+        if(currentSection.contains(_removeVanillaDropsSection))
+          {
+            treasure.setRemoveVanillaDrops(currentSection.getBoolean(_removeVanillaDropsSection, false) ? EnumVanillaDropsType.REMOVE : EnumVanillaDropsType.NOT_REMOVE);
+          }
+        if(currentSection.contains(_deliverySection))
+          {
+            String deliveryType = currentSection.getString(_deliverySection);
+            if(deliveryType != null)
+              {
+                treasure.setDeliveryType(EnumDeliveryType.getFromString(deliveryType));
+              }
+          }
         if(_loadActions(currentSection, treasure))
           {
             treasures.add(treasure);
@@ -207,14 +221,14 @@ public class TreasuresLoader
           {
             rewardsGroup.setChance(currentSection.getDouble(_chanceSection));
           }
-        if(_loadReward(currentSection, rewardsGroup))
+        if(_loadReward(currentSection, rewardsGroup, treasure))
           {
             treasure.getRewardsGroup().add(rewardsGroup);
           }
       }
   }
 
-  private boolean _loadReward(ConfigurationSection currentSection, RewardsGroup rewardsGroup)
+  private boolean _loadReward(ConfigurationSection currentSection, RewardsGroup rewardsGroup, Treasure treasure)
   {
     ConfigurationSection rewardSection = currentSection.getConfigurationSection(_rewardsSection);
     if(rewardSection != null)
@@ -222,19 +236,19 @@ public class TreasuresLoader
         for(String key : rewardSection.getKeys(false))
           {
             ConfigurationSection subRewardSection = rewardSection.getConfigurationSection(key);
-            _createReward(subRewardSection, rewardsGroup);
+            _createReward(subRewardSection, rewardsGroup, treasure);
           }
         return (!rewardsGroup.getRewards().isEmpty());
       }
     return false;
   }
 
-  private void _createReward(ConfigurationSection subRewardSection, RewardsGroup rewardsGroup)
+  private void _createReward(ConfigurationSection subRewardSection, RewardsGroup rewardsGroup, Treasure treasure)
   {
     if(subRewardSection != null)
       {
         Rewards rewards = new Rewards();
-        rewards.setOptions(_optionsLoader(subRewardSection));
+        rewards.setOptions(_optionsLoader(subRewardSection, treasure));
 
         if(subRewardSection.contains(_chanceSection))
           {
@@ -275,13 +289,14 @@ public class TreasuresLoader
   }
 
   @NotNull
-  private RewardOptions _optionsLoader(ConfigurationSection subRewardSection)
+  private RewardOptions _optionsLoader(ConfigurationSection subRewardSection, Treasure treasure)
   {
     if(subRewardSection != null)
       {
         boolean              useLooting       = false;
         boolean              useFortune       = false;
-        EnumVanillaDropsType vanillaDropsType = EnumVanillaDropsType.IGNORE;
+        EnumVanillaDropsType vanillaDropsType = treasure.getRemoveVanillaDrops();
+        EnumDeliveryType     deliveryType     = treasure.getDeliveryType();
         if(subRewardSection.contains(_useLootingSection))
           {
             useLooting = subRewardSection.getBoolean(_useLootingSection);
@@ -294,7 +309,15 @@ public class TreasuresLoader
           {
             vanillaDropsType = subRewardSection.getBoolean(_removeVanillaDropsSection, false) ? EnumVanillaDropsType.REMOVE : EnumVanillaDropsType.NOT_REMOVE;
           }
-        return new RewardOptions(useLooting, useFortune, vanillaDropsType);
+        if(subRewardSection.contains(_deliverySection))
+          {
+            String delivery = subRewardSection.getString(_deliverySection);
+            if(delivery != null)
+              {
+                deliveryType = EnumDeliveryType.getFromString(delivery);
+              }
+          }
+        return new RewardOptions(useLooting, useFortune, vanillaDropsType, deliveryType);
       }
     return new RewardOptions();
   }

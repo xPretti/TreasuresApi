@@ -3,6 +3,9 @@ package dev.pretti.treasuresapi.contexts;
 import dev.pretti.treasuresapi.datatypes.ItemType;
 import org.jetbrains.annotations.Nullable;
 
+/**
+* Classe de contexto para os comandos, esta classe armazena os valores das recompensas para converter em placeholder
+*/
 public class RewardContext
 {
   private ItemType itemType = null;

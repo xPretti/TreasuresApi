@@ -1,6 +1,6 @@
 package dev.pretti.treasuresapi.rewards;
 
-import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
+import dev.pretti.treasuresapi.options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.types.Reward;
 import org.jetbrains.annotations.NotNull;
 

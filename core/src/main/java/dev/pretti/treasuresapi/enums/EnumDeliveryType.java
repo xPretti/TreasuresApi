@@ -3,13 +3,14 @@ package dev.pretti.treasuresapi.enums;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public enum EnumAccessType
+public enum EnumDeliveryType
 {
-  BLACKLIST,
-  WHITELIST;
+  INVENTORY,
+  DROP,
+  STORED;
 
-  public static final  EnumAccessType[]                VALUES       = values();
-  private static final HashMap<String, EnumAccessType> VALUES_NAMES = new HashMap<>();
+  public static final  EnumDeliveryType[]                VALUES       = values();
+  private static final HashMap<String, EnumDeliveryType> VALUES_NAMES = new HashMap<>();
 
   /**
    * Inicializador
@@ -22,12 +23,12 @@ public enum EnumAccessType
   /**
    * Métodos de retornos
    */
-  public static EnumAccessType getFromString(String text)
+  public static EnumDeliveryType getFromString(String text)
   {
     return VALUES_NAMES.get(text.toUpperCase());
   }
 
-  public static EnumAccessType getFromInt(int number)
+  public static EnumDeliveryType getFromInt(int number)
   {
     if(number >= 0 && number < VALUES.length)
       {

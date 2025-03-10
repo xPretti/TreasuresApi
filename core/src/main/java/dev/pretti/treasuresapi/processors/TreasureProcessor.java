@@ -10,7 +10,7 @@ import dev.pretti.treasuresapi.processors.interfaces.outputs.ICommandOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IItemOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IMoneyOutput;
 import dev.pretti.treasuresapi.processors.interfaces.outputs.IXpOutput;
-import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
+import dev.pretti.treasuresapi.options.RewardOptions;
 import dev.pretti.treasuresapi.rewards.Rewards;
 import dev.pretti.treasuresapi.rewards.RewardsGroup;
 import dev.pretti.treasuresapi.rewards.Treasure;
@@ -101,6 +101,8 @@ public class TreasureProcessor implements ITreasureProcessor
               {
                 if(hasCondition(context, treasure.getConditions()))
                   {
+                    updateRemoveVanillaDrops(context, treasure.getRemoveVanillaDrops());
+                    context.getProcessContext().setTreasureDeliveryType(treasure.getDeliveryType());
                     boolean       wasRewarded = false;
                     int           limit       = treasure.getLimit();
                     boolean       random      = treasure.isRandom();
@@ -195,14 +197,7 @@ public class TreasureProcessor implements ITreasureProcessor
                                           }
                                       }
                                     wasRewarded = true;
-                                    EnumVanillaDropsType vanillaDropsType = rewards.getOptions().getRemoveVanillaDrops();
-                                    if(vanillaDropsType != EnumVanillaDropsType.IGNORE)
-                                      {
-                                        if(context.getRemoveVanillaDrops() != EnumVanillaDropsType.REMOVE)
-                                          {
-                                            context.setRemoveVanillaDrops(vanillaDropsType);
-                                          }
-                                      }
+                                    updateRemoveVanillaDrops(context, rewards.getOptions().getRemoveVanillaDrops());
                                   }
                               }
                           }
@@ -310,11 +305,25 @@ public class TreasureProcessor implements ITreasureProcessor
             if(itemType != null)
               {
                 context.getRewardContext().setItemType(itemType);
-                itemOutput.process(context, itemType, options);
+                itemOutput.process(context, itemType, options.clone());
                 return true;
               }
           }
       }
     return false;
+  }
+
+  /**
+   * Métodos de simplificação
+   */
+  private void updateRemoveVanillaDrops(TreasureContext context, EnumVanillaDropsType newValue)
+  {
+    if(newValue != null)
+      {
+        if(context.getProcessResult().getRemoveVanillaDrops() != EnumVanillaDropsType.REMOVE)
+          {
+            context.getProcessResult().setRemoveVanillaDrops(newValue);
+          }
+      }
   }
 }

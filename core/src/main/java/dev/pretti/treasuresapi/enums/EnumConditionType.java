@@ -1,5 +1,6 @@
 package dev.pretti.treasuresapi.enums;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public enum EnumConditionType
@@ -34,10 +35,7 @@ public enum EnumConditionType
    */
   static
     {
-      for(EnumConditionType enumValue : VALUES)
-        {
-          VALUES_NAMES.put(enumValue.getTypeName(), enumValue);
-        }
+      Arrays.stream(VALUES).forEach(value -> VALUES_NAMES.put(value.getTypeName(), value));
     }
 
   /**

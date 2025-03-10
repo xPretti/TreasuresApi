@@ -1,5 +1,6 @@
 package dev.pretti.treasuresapi.enums;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public enum EnumCommandType
@@ -28,10 +29,7 @@ public enum EnumCommandType
    */
   static
     {
-      for(EnumCommandType enumValue : VALUES)
-        {
-          VALUES_NAMES.put(enumValue.name(), enumValue);
-        }
+      Arrays.stream(VALUES).forEach(value -> VALUES_NAMES.put(value.name(), value));
     }
 
   /**

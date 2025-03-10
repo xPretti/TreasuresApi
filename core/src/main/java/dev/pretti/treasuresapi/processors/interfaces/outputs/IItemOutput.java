@@ -2,7 +2,7 @@ package dev.pretti.treasuresapi.processors.interfaces.outputs;
 
 import dev.pretti.treasuresapi.datatypes.ItemType;
 import dev.pretti.treasuresapi.contexts.TreasureContext;
-import dev.pretti.treasuresapi.rewards.Options.RewardOptions;
+import dev.pretti.treasuresapi.options.RewardOptions;
 import org.jetbrains.annotations.NotNull;
 
 public interface IItemOutput

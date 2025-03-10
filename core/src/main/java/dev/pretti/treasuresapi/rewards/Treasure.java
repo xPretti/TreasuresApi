@@ -2,33 +2,27 @@ package dev.pretti.treasuresapi.rewards;
 
 import dev.pretti.treasuresapi.collections.IteratorList;
 import dev.pretti.treasuresapi.conditions.Conditions;
+import dev.pretti.treasuresapi.enums.EnumDeliveryType;
+import dev.pretti.treasuresapi.enums.EnumVanillaDropsType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class Treasure
 {
-  private       String                     name;
-  private       double                     chance;
-  private       String                     permission;
-  private       int                        limit;
-  private       boolean                    random;
-  private       Conditions                 conditions   = new Conditions();
+  private       String                     name         = "Default";
+  private       double                     chance       = 100;
+  private       String                     permission   = "";
+  private       int                        limit        = 0;
+  private       boolean                    random       = false;
+  private       EnumVanillaDropsType       removeVanillaDrops;
+  private       EnumDeliveryType           deliveryType;
+  private final Conditions                 conditions   = new Conditions();
   private final IteratorList<RewardsGroup> rewardsGroup = new IteratorList<>();
-
-  /**
-   * Construtor da classe
-   */
-  public Treasure()
-  {
-    this.name       = "Default";
-    this.chance     = 100;
-    this.permission = "";
-    this.random     = false;
-    this.limit      = 0;
-  }
 
   /**
    * Definições e retornos
    */
+  @NotNull
   public String getName()
   {
     return name;
@@ -49,6 +43,7 @@ public class Treasure
     this.chance = chance;
   }
 
+  @NotNull
   public String getPermission()
   {
     return permission;
@@ -83,6 +78,28 @@ public class Treasure
   public void setRandom(boolean random)
   {
     this.random = random;
+  }
+
+  @Nullable
+  public EnumVanillaDropsType getRemoveVanillaDrops()
+  {
+    return removeVanillaDrops;
+  }
+
+  public void setRemoveVanillaDrops(@Nullable EnumVanillaDropsType removeVanillaDrops)
+  {
+    this.removeVanillaDrops = removeVanillaDrops;
+  }
+
+  @Nullable
+  public EnumDeliveryType getDeliveryType()
+  {
+    return deliveryType;
+  }
+
+  public void setDeliveryType(@Nullable EnumDeliveryType deliveryType)
+  {
+    this.deliveryType = deliveryType;
   }
 
   @NotNull

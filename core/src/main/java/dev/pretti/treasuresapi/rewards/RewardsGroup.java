@@ -5,19 +5,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class RewardsGroup
 {
-  private       boolean               randomRewards;
-  private       int                   limit;
-  private       String                permission;
-  private       double                chance;
-  private final IteratorList<Rewards> rewards = new IteratorList<>();
-
-  public RewardsGroup()
-  {
-    this.randomRewards = false;
-    this.limit         = 0;
-    this.permission    = "";
-    this.chance        = 100;
-  }
+  private       boolean               randomRewards = false;
+  private       int                   limit         = 0;
+  private       String                permission    = "";
+  private       double                chance        = 100;
+  private final IteratorList<Rewards> rewards       = new IteratorList<>();
 
   /**
    * Definições e retornos
