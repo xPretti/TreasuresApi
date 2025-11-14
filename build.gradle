@@ -53,12 +53,21 @@ subprojects {
     repositories {
         mavenCentral()
 
-        // Spigot
+        // Spigos
         maven {
             url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
         }
         maven {
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = 'https://repo.md-5.net/content/repositories/snapshots/'
+        }
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            url 'https://repo.codemc.io/repository/nms/'
+        }
+        maven {
+            url 'https://repo.codemc.io/repository/maven-public/'
         }
         // Minecraft
         maven {
