@@ -151,20 +151,22 @@ public class TreasureProcessor implements ITreasureProcessor
             if(rewards != null) {
               if(MathUtils.isChance(rewards.getChance())) {
                 if(hasPermission(player, rewards.getPermission())) {
-                  context.getRewardContext().reset();
-                  count++;
-                  for(Reward reward : rewards.getRewards()) {
-                    if(!_processXp(context, reward)) {
-                      if(!_processMoney(context, reward)) {
-                        if(!_processItem(context, reward, rewards.getOptions())) {
-                          if(!_processCommands(context, reward)) {
-                            continue;
+                  if(hasCondition(context, rewards.getConditions())) {
+                    context.getRewardContext().reset();
+                    count++;
+                    for(Reward reward : rewards.getRewards()) {
+                      if(!_processXp(context, reward)) {
+                        if(!_processMoney(context, reward)) {
+                          if(!_processItem(context, reward, rewards.getOptions())) {
+                            if(!_processCommands(context, reward)) {
+                              continue;
+                            }
                           }
                         }
                       }
+                      wasRewarded = true;
+                      updateRemoveVanillaDrops(context, rewards.getOptions().getRemoveVanillaDrops());
                     }
-                    wasRewarded = true;
-                    updateRemoveVanillaDrops(context, rewards.getOptions().getRemoveVanillaDrops());
                   }
                 }
               }

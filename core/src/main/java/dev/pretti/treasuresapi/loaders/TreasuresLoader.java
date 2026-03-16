@@ -70,8 +70,7 @@ public class TreasuresLoader
   /**
    * Contrutor da classe
    */
-  public TreasuresLoader(IConditionsBuilder conditionsBuilder)
-  {
+  public TreasuresLoader(IConditionsBuilder conditionsBuilder) {
     this.conditionsBuilder = conditionsBuilder;
   }
 
@@ -79,14 +78,12 @@ public class TreasuresLoader
    * Método de carregamento dos tesouros
    */
   @Nullable
-  public List<Treasure> loader(String folder) throws InvalidTreasuresLoaderException
-  {
+  public List<Treasure> loader(String folder) throws InvalidTreasuresLoaderException {
     this.treasureErrorsManager = new TreasureErrorLogger();
     List<Treasure> treasures = _convert(folder);
-    if(treasureErrorsManager.getTotal() > 0)
-      {
-        throw new InvalidTreasuresLoaderException("There were some errors loading the treasures.", treasureErrorsManager, treasures);
-      }
+    if(treasureErrorsManager.getTotal() > 0) {
+      throw new InvalidTreasuresLoaderException("There were some errors loading the treasures.", treasureErrorsManager, treasures);
+    }
     return (treasures);
   }
 
@@ -94,503 +91,401 @@ public class TreasuresLoader
    * Métodos de conversão
    */
   @Nullable
-  private List<Treasure> _convert(String folder)
-  {
-    if(FileUtils.FolderExist(folder))
-      {
-        File dir = new File(folder);
-        if(dir.isDirectory())
-          {
-            File[] files = dir.listFiles();
-            if(files != null)
-              {
-                if(files.length > 0)
-                  {
-                    List<Treasure> treasures = new ArrayList<>();
-                    for(File file : files)
-                      {
-                        FileConfiguration fileConfig = YamlConfiguration.loadConfiguration(file);
-                        _loadFolder(fileConfig, treasures);
-                      }
-                    if(!treasures.isEmpty())
-                      {
-                        return treasures;
-                      }
-                  }
-              }
+  private List<Treasure> _convert(String folder) {
+    if(FileUtils.FolderExist(folder)) {
+      File dir = new File(folder);
+      if(dir.isDirectory()) {
+        File[] files = dir.listFiles();
+        if(files != null) {
+          if(files.length > 0) {
+            List<Treasure> treasures = new ArrayList<>();
+            for(File file : files) {
+              FileConfiguration fileConfig = YamlConfiguration.loadConfiguration(file);
+              _loadFolder(fileConfig, treasures);
+            }
+            if(!treasures.isEmpty()) {
+              return treasures;
+            }
           }
+        }
       }
+    }
     return null;
   }
 
-  private void _loadFolder(FileConfiguration file, List<Treasure> treasures)
-  {
+  private void _loadFolder(FileConfiguration file, List<Treasure> treasures) {
     ConfigurationSection section = file.getConfigurationSection("");
-    if(section != null)
-      {
-        for(String key : section.getKeys(false))
-          {
-            ConfigurationSection treasureSection = section.getConfigurationSection(key);
-            _createTreasure(treasureSection, treasures);
-          }
+    if(section != null) {
+      for(String key : section.getKeys(false)) {
+        ConfigurationSection treasureSection = section.getConfigurationSection(key);
+        _createTreasure(treasureSection, treasures);
       }
+    }
   }
 
-  private void _createTreasure(ConfigurationSection currentSection, List<Treasure> treasures)
-  {
-    if(currentSection != null)
-      {
-        String   treasureName = currentSection.getName();
-        Treasure treasure     = new Treasure();
+  private void _createTreasure(ConfigurationSection currentSection, List<Treasure> treasures) {
+    if(currentSection != null) {
+      String   treasureName = currentSection.getName();
+      Treasure treasure     = new Treasure();
 
-        ConditionsLoader conditionsLoader = new ConditionsLoader(conditionsBuilder, treasure.getConditions(), treasureErrorsManager);
-        conditionsLoader.loader(currentSection);
+      ConditionsLoader conditionsLoader = new ConditionsLoader(conditionsBuilder, treasure.getConditions(), treasureErrorsManager);
+      conditionsLoader.loader(currentSection);
 
-        treasure.setName(treasureName);
-        if(currentSection.contains(_chanceSection))
-          {
-            treasure.setChance(currentSection.getDouble(_chanceSection));
-          }
-        if(currentSection.contains(_permissionSection))
-          {
-            treasure.setPermission(currentSection.getString(_permissionSection));
-          }
-        if(currentSection.contains(_randomRewardsSection))
-          {
-            treasure.setRandom(currentSection.getBoolean(_randomRewardsSection));
-          }
-        if(currentSection.contains(_limitSection))
-          {
-            treasure.setLimit(currentSection.getInt(_limitSection));
-          }
-        if(currentSection.contains(_removeVanillaDropsSection))
-          {
-            treasure.setRemoveVanillaDrops(currentSection.getBoolean(_removeVanillaDropsSection, false) ? EnumVanillaDropsType.REMOVE : EnumVanillaDropsType.NOT_REMOVE);
-          }
-        if(currentSection.contains(_deliverySection))
-          {
-            String deliveryType = currentSection.getString(_deliverySection);
-            if(deliveryType != null)
-              {
-                treasure.setDeliveryType(EnumDeliveryType.getFromString(deliveryType));
-              }
-          }
-        if(_loadActions(currentSection, treasure))
-          {
-            treasures.add(treasure);
-          }
+      treasure.setName(treasureName);
+      if(currentSection.contains(_chanceSection)) {
+        treasure.setChance(currentSection.getDouble(_chanceSection));
       }
+      if(currentSection.contains(_permissionSection)) {
+        treasure.setPermission(currentSection.getString(_permissionSection));
+      }
+      if(currentSection.contains(_randomRewardsSection)) {
+        treasure.setRandom(currentSection.getBoolean(_randomRewardsSection));
+      }
+      if(currentSection.contains(_limitSection)) {
+        treasure.setLimit(currentSection.getInt(_limitSection));
+      }
+      if(currentSection.contains(_removeVanillaDropsSection)) {
+        treasure.setRemoveVanillaDrops(currentSection.getBoolean(_removeVanillaDropsSection, false) ? EnumVanillaDropsType.REMOVE : EnumVanillaDropsType.NOT_REMOVE);
+      }
+      if(currentSection.contains(_deliverySection)) {
+        String deliveryType = currentSection.getString(_deliverySection);
+        if(deliveryType != null) {
+          treasure.setDeliveryType(EnumDeliveryType.getFromString(deliveryType));
+        }
+      }
+      if(_loadActions(currentSection, treasure)) {
+        treasures.add(treasure);
+      }
+    }
   }
 
-  private boolean _loadActions(ConfigurationSection currentSection, Treasure treasure)
-  {
-    if(treasure != null && currentSection != null)
-      {
-        ConfigurationSection actionSection = currentSection.getConfigurationSection(_treasureSection);
-        if(actionSection != null)
-          {
-            for(String key : actionSection.getKeys(false))
-              {
-                ConfigurationSection subActionSection = actionSection.getConfigurationSection(key);
-                _createRewards(subActionSection, treasure);
-              }
-            return (!treasure.getRewardsGroup().isEmpty());
-          }
+  private boolean _loadActions(ConfigurationSection currentSection, Treasure treasure) {
+    if(treasure != null && currentSection != null) {
+      ConfigurationSection actionSection = currentSection.getConfigurationSection(_treasureSection);
+      if(actionSection != null) {
+        for(String key : actionSection.getKeys(false)) {
+          ConfigurationSection subActionSection = actionSection.getConfigurationSection(key);
+          _createRewards(subActionSection, treasure);
+        }
+        return (!treasure.getRewardsGroup().isEmpty());
       }
+    }
     return false;
   }
 
-  private void _createRewards(ConfigurationSection currentSection, Treasure treasure)
-  {
-    if(currentSection != null)
-      {
-        RewardsGroup rewardsGroup = new RewardsGroup();
-        if(currentSection.contains(_randomRewardsSection))
-          {
-            rewardsGroup.setRandomRewards(currentSection.getBoolean(_randomRewardsSection));
-          }
-        if(currentSection.contains(_limitSection))
-          {
-            rewardsGroup.setLimit(currentSection.getInt(_limitSection));
-          }
-        if(currentSection.contains(_permissionSection))
-          {
-            rewardsGroup.setPermission(currentSection.getString(_permissionSection));
-          }
-        if(currentSection.contains(_chanceSection))
-          {
-            rewardsGroup.setChance(currentSection.getDouble(_chanceSection));
-          }
-        if(_loadReward(currentSection, rewardsGroup, treasure))
-          {
-            treasure.getRewardsGroup().add(rewardsGroup);
-          }
+  private void _createRewards(ConfigurationSection currentSection, Treasure treasure) {
+    if(currentSection != null) {
+      RewardsGroup rewardsGroup = new RewardsGroup();
+      if(currentSection.contains(_randomRewardsSection)) {
+        rewardsGroup.setRandomRewards(currentSection.getBoolean(_randomRewardsSection));
       }
+      if(currentSection.contains(_limitSection)) {
+        rewardsGroup.setLimit(currentSection.getInt(_limitSection));
+      }
+      if(currentSection.contains(_permissionSection)) {
+        rewardsGroup.setPermission(currentSection.getString(_permissionSection));
+      }
+      if(currentSection.contains(_chanceSection)) {
+        rewardsGroup.setChance(currentSection.getDouble(_chanceSection));
+      }
+      if(_loadReward(currentSection, rewardsGroup, treasure)) {
+        treasure.getRewardsGroup().add(rewardsGroup);
+      }
+    }
   }
 
-  private boolean _loadReward(ConfigurationSection currentSection, RewardsGroup rewardsGroup, Treasure treasure)
-  {
+  private boolean _loadReward(ConfigurationSection currentSection, RewardsGroup rewardsGroup, Treasure treasure) {
     ConfigurationSection rewardSection = currentSection.getConfigurationSection(_rewardsSection);
-    if(rewardSection != null)
-      {
-        for(String key : rewardSection.getKeys(false))
-          {
-            ConfigurationSection subRewardSection = rewardSection.getConfigurationSection(key);
-            _createReward(subRewardSection, rewardsGroup, treasure);
-          }
-        return (!rewardsGroup.getRewards().isEmpty());
+    if(rewardSection != null) {
+      for(String key : rewardSection.getKeys(false)) {
+        ConfigurationSection subRewardSection = rewardSection.getConfigurationSection(key);
+        _createReward(subRewardSection, rewardsGroup, treasure);
       }
+      return (!rewardsGroup.getRewards().isEmpty());
+    }
     return false;
   }
 
-  private void _createReward(ConfigurationSection subRewardSection, RewardsGroup rewardsGroup, Treasure treasure)
-  {
-    if(subRewardSection != null)
-      {
-        Rewards rewards = new Rewards();
-        rewards.setOptions(_optionsLoader(subRewardSection, treasure));
+  private void _createReward(ConfigurationSection subRewardSection, RewardsGroup rewardsGroup, Treasure treasure) {
+    if(subRewardSection != null) {
+      Rewards rewards = new Rewards();
+      rewards.setOptions(_optionsLoader(subRewardSection, treasure));
 
-        if(subRewardSection.contains(_chanceSection))
-          {
-            rewards.setChance(subRewardSection.getDouble(_chanceSection));
-          }
-        if(subRewardSection.contains(_permissionSection))
-          {
-            rewards.setPermission(subRewardSection.getString(_permissionSection));
-          }
-        if(subRewardSection.contains(_expSection))
-          {
-            String exp = subRewardSection.getString(_expSection);
-            rewards.getRewards().add(_expLoader(exp, false));
-          }
-        else if(subRewardSection.contains(_xpLevelSection))
-          {
-            String exp = subRewardSection.getString(_xpLevelSection);
-            rewards.getRewards().add(_expLoader(exp, true));
-          }
-        if(subRewardSection.contains(_moneySection))
-          {
-            String money = subRewardSection.getString(_moneySection);
-            rewards.getRewards().add(_moneyLoader(money));
-          }
-        if(subRewardSection.contains(_itemSection))
-          {
-            rewards.getRewards().add(_itemLoader(subRewardSection));
-          }
-        if(subRewardSection.contains(_commandsSection))
-          {
-            rewards.getRewards().add(_commandLoader(subRewardSection.getStringList(_commandsSection), subRewardSection.getCurrentPath() + "." + _commandsSection));
-          }
-        if(!rewards.getRewards().isEmpty())
-          {
-            rewardsGroup.getRewards().add(rewards);
-          }
+      ConditionsLoader conditionsLoader = new ConditionsLoader(conditionsBuilder, rewards.getConditions(), treasureErrorsManager);
+      conditionsLoader.loader(subRewardSection);
+
+      if(subRewardSection.contains(_chanceSection)) {
+        rewards.setChance(subRewardSection.getDouble(_chanceSection));
       }
+      if(subRewardSection.contains(_permissionSection)) {
+        rewards.setPermission(subRewardSection.getString(_permissionSection));
+      }
+      if(subRewardSection.contains(_expSection)) {
+        String exp = subRewardSection.getString(_expSection);
+        rewards.getRewards().add(_expLoader(exp, false));
+      }
+      else if(subRewardSection.contains(_xpLevelSection)) {
+        String exp = subRewardSection.getString(_xpLevelSection);
+        rewards.getRewards().add(_expLoader(exp, true));
+      }
+      if(subRewardSection.contains(_moneySection)) {
+        String money = subRewardSection.getString(_moneySection);
+        rewards.getRewards().add(_moneyLoader(money));
+      }
+      if(subRewardSection.contains(_itemSection)) {
+        rewards.getRewards().add(_itemLoader(subRewardSection));
+      }
+      if(subRewardSection.contains(_commandsSection)) {
+        rewards.getRewards().add(_commandLoader(subRewardSection.getStringList(_commandsSection), subRewardSection.getCurrentPath() + "." + _commandsSection));
+      }
+      if(!rewards.getRewards().isEmpty()) {
+        rewardsGroup.getRewards().add(rewards);
+      }
+    }
   }
 
   @NotNull
-  private RewardOptions _optionsLoader(ConfigurationSection subRewardSection, Treasure treasure)
-  {
-    if(subRewardSection != null)
-      {
-        boolean              useLooting       = false;
-        boolean              useFortune       = false;
-        EnumVanillaDropsType vanillaDropsType = treasure.getRemoveVanillaDrops();
-        EnumDeliveryType     deliveryType     = treasure.getDeliveryType();
-        if(subRewardSection.contains(_useLootingSection))
-          {
-            useLooting = subRewardSection.getBoolean(_useLootingSection);
-          }
-        if(subRewardSection.contains(_useFortuneSection))
-          {
-            useFortune = subRewardSection.getBoolean(_useFortuneSection);
-          }
-        if(subRewardSection.contains(_removeVanillaDropsSection))
-          {
-            vanillaDropsType = subRewardSection.getBoolean(_removeVanillaDropsSection, false) ? EnumVanillaDropsType.REMOVE : EnumVanillaDropsType.NOT_REMOVE;
-          }
-        if(subRewardSection.contains(_deliverySection))
-          {
-            String delivery = subRewardSection.getString(_deliverySection);
-            if(delivery != null)
-              {
-                deliveryType = EnumDeliveryType.getFromString(delivery);
-              }
-          }
-        return new RewardOptions(useLooting, useFortune, vanillaDropsType, deliveryType);
+  private RewardOptions _optionsLoader(ConfigurationSection subRewardSection, Treasure treasure) {
+    if(subRewardSection != null) {
+      boolean              useLooting       = false;
+      boolean              useFortune       = false;
+      EnumVanillaDropsType vanillaDropsType = treasure.getRemoveVanillaDrops();
+      EnumDeliveryType     deliveryType     = treasure.getDeliveryType();
+      if(subRewardSection.contains(_useLootingSection)) {
+        useLooting = subRewardSection.getBoolean(_useLootingSection);
       }
+      if(subRewardSection.contains(_useFortuneSection)) {
+        useFortune = subRewardSection.getBoolean(_useFortuneSection);
+      }
+      if(subRewardSection.contains(_removeVanillaDropsSection)) {
+        vanillaDropsType = subRewardSection.getBoolean(_removeVanillaDropsSection, false) ? EnumVanillaDropsType.REMOVE : EnumVanillaDropsType.NOT_REMOVE;
+      }
+      if(subRewardSection.contains(_deliverySection)) {
+        String delivery = subRewardSection.getString(_deliverySection);
+        if(delivery != null) {
+          deliveryType = EnumDeliveryType.getFromString(delivery);
+        }
+      }
+      return new RewardOptions(useLooting, useFortune, vanillaDropsType, deliveryType);
+    }
     return new RewardOptions();
   }
 
   @Nullable
-  private CommandReward _commandLoader(List<String> values, String sectionName)
-  {
-    if(values != null)
-      {
-        if(!values.isEmpty())
-          {
-            CommandReward commandReward = new CommandReward();
-            CommandType   type;
+  private CommandReward _commandLoader(List<String> values, String sectionName) {
+    if(values != null) {
+      if(!values.isEmpty()) {
+        CommandReward commandReward = new CommandReward();
+        CommandType   type;
 
-            List<String> erros = new ArrayList<>();
-            for(String command : values)
-              {
-                type = ConverterUtils.getCommandType(command);
-                if(type != null)
-                  {
-                    if(type instanceof InvalidCommandType)
-                      {
-                        InvalidCommandType invalidCommandType = (InvalidCommandType) type;
-                        treasureErrorsManager.add(sectionName, invalidCommandType.getArguments(), invalidCommandType.getError());
-                      }
-                    else
-                      {
-                        commandReward.getCommands().add(type);
-                      }
-                  }
-                else
-                  {
-                    erros.add(ConverterUtils.getCommandText(command));
-                  }
-              }
-            if(!erros.isEmpty())
-              {
-                treasureErrorsManager.add(sectionName, erros, "Invalid command type");
-              }
-            return commandReward;
+        List<String> erros = new ArrayList<>();
+        for(String command : values) {
+          type = ConverterUtils.getCommandType(command);
+          if(type != null) {
+            if(type instanceof InvalidCommandType) {
+              InvalidCommandType invalidCommandType = (InvalidCommandType) type;
+              treasureErrorsManager.add(sectionName, invalidCommandType.getArguments(), invalidCommandType.getError());
+            }
+            else {
+              commandReward.getCommands().add(type);
+            }
           }
+          else {
+            erros.add(ConverterUtils.getCommandText(command));
+          }
+        }
+        if(!erros.isEmpty()) {
+          treasureErrorsManager.add(sectionName, erros, "Invalid command type");
+        }
+        return commandReward;
       }
+    }
     return null;
   }
 
   @Nullable
-  private XpReward _expLoader(String value, boolean isLevel)
-  {
-    if(value != null)
-      {
-        XpReward   expReward = new XpReward(isLevel);
-        IntDynamic dynamic   = new IntDynamic();
-        ConverterUtils.setDynamic(dynamic, value);
-        expReward.setXp(dynamic);
-        return expReward;
-      }
+  private XpReward _expLoader(String value, boolean isLevel) {
+    if(value != null) {
+      XpReward   expReward = new XpReward(isLevel);
+      IntDynamic dynamic   = new IntDynamic();
+      ConverterUtils.setDynamic(dynamic, value);
+      expReward.setXp(dynamic);
+      return expReward;
+    }
     return null;
   }
 
   @Nullable
-  private MoneyReward _moneyLoader(String value)
-  {
-    if(value != null)
-      {
-        MoneyReward   moneyReward = new MoneyReward();
-        DoubleDynamic dynamic     = new DoubleDynamic();
-        ConverterUtils.setDynamic(dynamic, value);
-        moneyReward.setMoney(dynamic);
-        return moneyReward;
-      }
+  private MoneyReward _moneyLoader(String value) {
+    if(value != null) {
+      MoneyReward   moneyReward = new MoneyReward();
+      DoubleDynamic dynamic     = new DoubleDynamic();
+      ConverterUtils.setDynamic(dynamic, value);
+      moneyReward.setMoney(dynamic);
+      return moneyReward;
+    }
     return null;
   }
 
   @Nullable
-  private ItemReward _itemLoader(ConfigurationSection section)
-  {
+  private ItemReward _itemLoader(ConfigurationSection section) {
     ConfigurationSection itemSection = section.getConfigurationSection(_itemSection);
-    if(itemSection != null)
-      {
-        ItemReward itemReward = new ItemReward();
-        boolean    created    = _itemLoaderType(itemSection, itemReward);
-        _itemLoaderName(itemSection, itemReward);
-        _itemLoaderLore(itemSection, itemReward);
-        _itemLoaderAmount(itemSection, itemReward);
-        _itemLoaderEnchant(itemSection, itemReward);
-        _itemLoaderFlags(itemSection, itemReward);
-        _itemLoaderMetas(itemSection, itemReward);
-        return created ? itemReward : null;
-      }
+    if(itemSection != null) {
+      ItemReward itemReward = new ItemReward();
+      boolean    created    = _itemLoaderType(itemSection, itemReward);
+      _itemLoaderName(itemSection, itemReward);
+      _itemLoaderLore(itemSection, itemReward);
+      _itemLoaderAmount(itemSection, itemReward);
+      _itemLoaderEnchant(itemSection, itemReward);
+      _itemLoaderFlags(itemSection, itemReward);
+      _itemLoaderMetas(itemSection, itemReward);
+      return created ? itemReward : null;
+    }
     return null;
   }
 
-  private boolean _itemLoaderType(ConfigurationSection itemSection, ItemReward itemReward)
-  {
+  private boolean _itemLoaderType(ConfigurationSection itemSection, ItemReward itemReward) {
     String   name     = _materialSection;
     Material material = Material.STONE;
     byte     data     = 0;
-    if(itemSection.contains(name))
-      {
-        String type = itemSection.getString(name);
-        if(type != null)
-          {
-            String[] typeArray = type.split(":");
-            if(typeArray.length > 0)
-              {
-                material = Material.getMaterial(typeArray[0]);
-              }
-            if(typeArray.length > 1)
-              {
-                data = Byte.parseByte(typeArray[1]);
-              }
-            if(material == null)
-              {
-                String identifier = itemSection.getCurrentPath();
-                treasureErrorsManager.add(identifier, type, "Invalid material type");
-              }
-          }
+    if(itemSection.contains(name)) {
+      String type = itemSection.getString(name);
+      if(type != null) {
+        String[] typeArray = type.split(":");
+        if(typeArray.length > 0) {
+          material = Material.getMaterial(typeArray[0]);
+        }
+        if(typeArray.length > 1) {
+          data = Byte.parseByte(typeArray[1]);
+        }
+        if(material == null) {
+          String identifier = itemSection.getCurrentPath();
+          treasureErrorsManager.add(identifier, type, "Invalid material type");
+        }
       }
+    }
     itemReward.setMaterial(material, data);
     return (material != null);
   }
 
-  private void _itemLoaderName(ConfigurationSection itemSection, ItemReward itemReward)
-  {
+  private void _itemLoaderName(ConfigurationSection itemSection, ItemReward itemReward) {
     String name = _nameSection;
-    if(itemSection.contains(name))
-      {
-        String displayName = itemSection.getString(name);
-        itemReward.setName(displayName);
-      }
+    if(itemSection.contains(name)) {
+      String displayName = itemSection.getString(name);
+      itemReward.setName(displayName);
+    }
   }
 
-  private void _itemLoaderLore(ConfigurationSection itemSection, ItemReward itemReward)
-  {
+  private void _itemLoaderLore(ConfigurationSection itemSection, ItemReward itemReward) {
     String name = _loresSection;
-    if(itemSection.contains(name) || itemSection.contains("lores"))
-      {
-        List<String> lores = itemSection.getStringList(name);
-        itemReward.setLore(lores);
-      }
+    if(itemSection.contains(name) || itemSection.contains("lores")) {
+      List<String> lores = itemSection.getStringList(name);
+      itemReward.setLore(lores);
+    }
   }
 
-  private void _itemLoaderAmount(ConfigurationSection itemSection, ItemReward itemReward)
-  {
+  private void _itemLoaderAmount(ConfigurationSection itemSection, ItemReward itemReward) {
     String     name    = _amountSection;
     IntDynamic dynamic = new IntDynamic(1, 1);
-    if(itemSection.contains(name))
-      {
-        String amount = itemSection.getString(name);
-        ConverterUtils.setDynamic(dynamic, amount);
-      }
+    if(itemSection.contains(name)) {
+      String amount = itemSection.getString(name);
+      ConverterUtils.setDynamic(dynamic, amount);
+    }
     itemReward.setAmount(dynamic);
   }
 
-  private void _itemLoaderEnchant(ConfigurationSection itemSection, ItemReward itemReward)
-  {
+  private void _itemLoaderEnchant(ConfigurationSection itemSection, ItemReward itemReward) {
     String name = _enchantsSection;
-    if(itemSection.contains(name))
-      {
-        List<String> enchants = itemSection.getStringList(name);
-        if(!enchants.isEmpty())
-          {
-            List<String>         errors      = new ArrayList<>();
-            List<EnchantDynamic> enchantList = new ArrayList<>();
-            for(String value : enchants)
-              {
-                value = value.trim();
-                List<String> values = StringUtils.splitNoEmpty(value, " ");
-                if(values != null)
-                  {
-                    if(!values.isEmpty())
-                      {
-                        Enchantment enchantment = Enchantment.getByName(values.get(0));
-                        if(enchantment != null)
-                          {
-                            EnchantDynamic enchantDynamic = new EnchantDynamic(enchantment, 1, 1);
-                            if(values.size() > 1)
-                              {
-                                ConverterUtils.setDynamic(enchantDynamic, values.get(1));
-                              }
-                            enchantList.add(enchantDynamic);
-                          }
-                        else
-                          {
-                            errors.add(ConverterUtils.getCommandText(value));
-                          }
-                      }
-                  }
+    if(itemSection.contains(name)) {
+      List<String> enchants = itemSection.getStringList(name);
+      if(!enchants.isEmpty()) {
+        List<String>         errors      = new ArrayList<>();
+        List<EnchantDynamic> enchantList = new ArrayList<>();
+        for(String value : enchants) {
+          value = value.trim();
+          List<String> values = StringUtils.splitNoEmpty(value, " ");
+          if(values != null) {
+            if(!values.isEmpty()) {
+              Enchantment enchantment = Enchantment.getByName(values.get(0));
+              if(enchantment != null) {
+                EnchantDynamic enchantDynamic = new EnchantDynamic(enchantment, 1, 1);
+                if(values.size() > 1) {
+                  ConverterUtils.setDynamic(enchantDynamic, values.get(1));
+                }
+                enchantList.add(enchantDynamic);
               }
-            if(!errors.isEmpty())
-              {
-                String identifier = itemSection.getCurrentPath();
-                treasureErrorsManager.add(identifier, errors, "Invalid enchantment type");
-                return;
+              else {
+                errors.add(ConverterUtils.getCommandText(value));
               }
-            itemReward.setEnchant(enchantList);
+            }
           }
+        }
+        if(!errors.isEmpty()) {
+          String identifier = itemSection.getCurrentPath();
+          treasureErrorsManager.add(identifier, errors, "Invalid enchantment type");
+          return;
+        }
+        itemReward.setEnchant(enchantList);
       }
+    }
   }
 
-  private void _itemLoaderFlags(ConfigurationSection itemSection, ItemReward itemReward)
-  {
+  private void _itemLoaderFlags(ConfigurationSection itemSection, ItemReward itemReward) {
     String name = _flagsSection;
-    if(itemSection.contains(name))
-      {
-        List<String> flagsText = itemSection.getStringList(name);
-        if(!flagsText.isEmpty())
-          {
-            List<String>  errors = new ArrayList<>();
-            ItemFlag      newFlag;
-            Set<ItemFlag> flags  = new HashSet<>();
-            for(String flagName : flagsText)
-              {
-                try
-                  {
-                    flagName = flagName.trim().toUpperCase();
-                    newFlag  = ItemFlag.valueOf(flagName);
-                    flags.add(newFlag);
-                  } catch(Throwable ignored)
-                  {
-                    errors.add(ConverterUtils.getCommandText(flagName));
-                  }
-              }
-            if(!errors.isEmpty())
-              {
-                String identifier = itemSection.getCurrentPath();
-                treasureErrorsManager.add(identifier, errors, "Invalid flags type");
-                return;
-              }
-            itemReward.setFlags(flags);
+    if(itemSection.contains(name)) {
+      List<String> flagsText = itemSection.getStringList(name);
+      if(!flagsText.isEmpty()) {
+        List<String>  errors = new ArrayList<>();
+        ItemFlag      newFlag;
+        Set<ItemFlag> flags  = new HashSet<>();
+        for(String flagName : flagsText) {
+          try {
+            flagName = flagName.trim().toUpperCase();
+            newFlag  = ItemFlag.valueOf(flagName);
+            flags.add(newFlag);
+          } catch(Throwable ignored) {
+            errors.add(ConverterUtils.getCommandText(flagName));
           }
+        }
+        if(!errors.isEmpty()) {
+          String identifier = itemSection.getCurrentPath();
+          treasureErrorsManager.add(identifier, errors, "Invalid flags type");
+          return;
+        }
+        itemReward.setFlags(flags);
       }
+    }
   }
 
-  private void _itemLoaderMetas(ConfigurationSection itemSection, ItemReward itemReward)
-  {
+  private void _itemLoaderMetas(ConfigurationSection itemSection, ItemReward itemReward) {
     String name = _metadatasSection;
-    if(itemSection.contains(name))
-      {
-        ConfigurationSection metadatasSection = itemSection.getConfigurationSection(name);
-        if(metadatasSection != null)
-          {
-            List<MetadataType> metadatas = new ArrayList<>();
-            for(String key : metadatasSection.getKeys(false))
-              {
-                ConfigurationSection subMetadatasSection = metadatasSection.getConfigurationSection(key);
-                if(subMetadatasSection != null)
-                  {
-                    String keyValue = subMetadatasSection.getString("key", null);
-                    String value    = subMetadatasSection.getString("value", null);
-                    if(keyValue != null && value != null)
-                      {
-                        metadatas.add(new MetadataType(keyValue.trim(), value.trim()));
-                      }
-                    else
-                      {
-                        String identifier = subMetadatasSection.getCurrentPath();
-                        if(keyValue == null)
-                          {
-                            treasureErrorsManager.add(identifier, "key", "Invalid metadata key");
-                          }
-                        if(value == null)
-                          {
-                            treasureErrorsManager.add(identifier, "value", "Invalid metadata value");
-                          }
-                      }
-                  }
+    if(itemSection.contains(name)) {
+      ConfigurationSection metadatasSection = itemSection.getConfigurationSection(name);
+      if(metadatasSection != null) {
+        List<MetadataType> metadatas = new ArrayList<>();
+        for(String key : metadatasSection.getKeys(false)) {
+          ConfigurationSection subMetadatasSection = metadatasSection.getConfigurationSection(key);
+          if(subMetadatasSection != null) {
+            String keyValue = subMetadatasSection.getString("key", null);
+            String value    = subMetadatasSection.getString("value", null);
+            if(keyValue != null && value != null) {
+              metadatas.add(new MetadataType(keyValue.trim(), value.trim()));
+            }
+            else {
+              String identifier = subMetadatasSection.getCurrentPath();
+              if(keyValue == null) {
+                treasureErrorsManager.add(identifier, "key", "Invalid metadata key");
               }
-            if(!metadatas.isEmpty())
-              {
-                itemReward.setMetadata(metadatas);
+              if(value == null) {
+                treasureErrorsManager.add(identifier, "value", "Invalid metadata value");
               }
+            }
           }
+        }
+        if(!metadatas.isEmpty()) {
+          itemReward.setMetadata(metadatas);
+        }
       }
+    }
   }
 }
