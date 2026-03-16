@@ -53,7 +53,7 @@ public class TreasuresLoader
   private static final String _itemSection               = "item";
   private static final String _materialSection           = "material";
   private static final String _nameSection               = "name";
-  private static final String _loresSection              = "lores";
+  private static final String _loresSection              = "lore";
   private static final String _amountSection             = "amount";
   private static final String _enchantsSection           = "enchants";
   private static final String _expSection                = "exp";
@@ -453,7 +453,7 @@ public class TreasuresLoader
   private void _itemLoaderLore(ConfigurationSection itemSection, ItemReward itemReward)
   {
     String name = _loresSection;
-    if(itemSection.contains(name))
+    if(itemSection.contains(name) || itemSection.contains("lores"))
       {
         List<String> lores = itemSection.getStringList(name);
         itemReward.setLore(lores);
