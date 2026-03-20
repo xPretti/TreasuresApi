@@ -89,13 +89,13 @@ public class TreasureProcessor implements ITreasureProcessor
     if(MathUtils.isChance(treasure.getChance())) {
       Player player = context.getPlayer();
       if(hasPermission(player.getPlayer(), treasure.getPermission())) {
-        List<RewardsGroup> values = treasure.getRewardsGroup();
         if(hasCondition(context, treasure.getConditions())) {
           updateRemoveVanillaDrops(context, treasure.getRemoveVanillaDrops());
           context.getProcessContext().setTreasureDeliveryType(treasure.getDeliveryType());
           boolean                   wasRewarded = false;
           int                       limit       = treasure.getLimit();
           boolean                   random      = treasure.isRandom();
+          List<RewardsGroup>        values      = treasure.getRewardsGroup();
           IListPicker<RewardsGroup> picker      = random ? new RandomPicker<>(values) : new LinearPicker<>(values);
           int                       count       = 0;
           RewardsGroup              rewardsGroup;
@@ -106,8 +106,8 @@ public class TreasureProcessor implements ITreasureProcessor
               if(rewardsGroup != null) {
                 if(_processActions(context, rewardsGroup)) {
                   wasRewarded = true;
+                  count++;
                 }
-                count++;
               }
             }
             else {
